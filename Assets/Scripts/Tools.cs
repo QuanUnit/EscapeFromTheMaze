@@ -21,4 +21,27 @@ public static class Tools
         }
         return output;
     }
+
+    public static bool Contains<T>(this IEnumerable<T> collection, T obj)
+    {
+        foreach (var item in collection)
+        {
+            if (item.Equals(obj))
+                return true;
+        }
+        return false;
+    }    
+
+    public static T GetObject<T>(this IEnumerable<T> collection, int index)
+    {
+        int counter = 0;
+        foreach (var item in collection)
+        {
+            if (index == counter)
+                return item;
+            counter++;
+        }
+
+        throw new System.IndexOutOfRangeException();
+    }
 }

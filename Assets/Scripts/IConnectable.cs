@@ -1,4 +1,11 @@
-public interface IConnectable<T>
+using System.Collections.Generic;
+
+public interface IConnectable
 {
-    IConnector<T> Connector { get; }
+    List<IConnectable> ConnectedSubjects { get; }
+    int ConnectionsCount { get; }
+
+    void Connect(IConnectable subject);
+    void Disconnect(IConnectable subject);
+    void DisconnectAll();
 }
