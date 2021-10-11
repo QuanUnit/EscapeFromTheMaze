@@ -275,6 +275,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 1194651437}
+  - component: {fileID: 1194651438}
   m_Layer: 0
   m_Name: Game
   m_TagString: Untagged
@@ -299,6 +300,20 @@ Transform:
   m_Father: {fileID: 0}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &1194651438
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1194651436}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6c84bb1fc7c1dec4eb59c782ae73a6ef, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  _generator: {fileID: 1523993715}
+  _playerPrefab: {fileID: 1118764513937659029, guid: cf0885dc932b8dc44a77b9320df02799, type: 3}
 --- !u!1 &1523993713
 GameObject:
   m_ObjectHideFlags: 0
@@ -342,10 +357,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: fa9e51a7366b353429d5f51c868a37f6, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _mazeSize: {x: 15, y: 15}
+  _mazeSize: {x: 15, y: 8}
   _mazePosition: {x: -4, y: -4}
-  _mazeIntegrity: 0.8
+  _mazeIntegrity: 1
   _mazeContainer: {fileID: 1045766561}
   _simpleWallPrefab: {fileID: 6143081397473487285, guid: 0d9b58357eec7364bb95a96ece42216c, type: 3}
   _openingWallPrefab: {fileID: 0}
   _buttonPrefab: {fileID: 0}
+  _finishTrigger: {fileID: -5671353028853128143, guid: 68757c58a15164342884a004f7627b82, type: 3}

@@ -17,6 +17,7 @@ public sealed class MazeGenerator : MonoBehaviour
     [SerializeField] private GameObject _simpleWallPrefab;
     [SerializeField] private GameObject _openingWallPrefab;
     [SerializeField] private GameObject _buttonPrefab;
+    [SerializeField] private Trigger _finishTrigger;
 
     private float _wallLength;
     private float _wallOffset;
@@ -24,11 +25,6 @@ public sealed class MazeGenerator : MonoBehaviour
     private void Awake()
     {
         Initialize();
-    }
-
-    private void Start()
-    {
-        Generate();
     }
 
     private void Initialize()
@@ -42,19 +38,35 @@ public sealed class MazeGenerator : MonoBehaviour
         _wallOffset = (wallSprite.pivot / wallSpriteSize).x * _wallLength;
     }
 
-    public void Generate()
+    public Maze Generate()
     {
-        List<WallInfo> mazeFrame = CreateMazeFrame();
+        ClearContainer();
+
         MazeCell[,] mazeCellsGrid = GenerateCellsGrid();
-        List<WallInfo> insideWalls = BypassingMazeGeneration(mazeCellsGrid[0, 0]);
+        MazeCell startCell = mazeCellsGrid[Random.Range(0, _mazeSize.y), Random.Range(0, _mazeSize.x)];
+
+        List<WallInfo> mazeFrame = CreateMazeFrame(mazeCellsGrid);
+        List<WallInfo> insideWalls = BypassingMazeGeneration(startCell);
 
         DeleteWalls(insideWalls);
 
+        Trigger exitTrigger = CreateMazeExit(mazeCellsGrid, mazeFrame);
+
+        Maze maze = new Maze(startCell, mazeCellsGrid, exitTrigger);
+
         BuildMaze(mazeFrame);
         BuildMaze(insideWalls);
+
+        return maze;
     }
 
-    private List<WallInfo> CreateMazeFrame()
+    private void ClearContainer()
+    {
+        foreach (Transform child in _mazeContainer)
+            Destroy(child.gameObject);
+    }
+
+    private List<WallInfo> CreateMazeFrame(MazeCell[,] grid)
     {
         List<WallInfo> frame = new List<WallInfo>();
 
@@ -68,8 +80,14 @@ public sealed class MazeGenerator : MonoBehaviour
             Vector3 leftSidePosition = new Vector3(_mazePosition.x, yPosition);
             Vector3 rightSidePosition = new Vector3(rightMazeBorder, yPosition);
 
-            frame.Add(new WallInfo(leftSidePosition, new Vector3(0, 0, 90)));
-            frame.Add(new WallInfo(rightSidePosition, new Vector3(0, 0, 90)));
+            WallInfo leftSideWall = new WallInfo(leftSidePosition, new Vector3(0, 0, 90));
+            WallInfo rightSideWall = new WallInfo(rightSidePosition, new Vector3(0, 0, 90));
+
+            grid[_mazeSize.y - 1 - i, 0].ContactWalls.Add(leftSideWall);
+            grid[_mazeSize.y - 1 - i, _mazeSize.x - 1].ContactWalls.Add(rightSideWall);
+
+            frame.Add(leftSideWall);
+            frame.Add(rightSideWall);
         }
 
         for (int i = 0; i < _mazeSize.x; i++)
@@ -79,8 +97,14 @@ public sealed class MazeGenerator : MonoBehaviour
             Vector3 bottomSidePosition = new Vector3(xPosition, _mazePosition.y);
             Vector3 topSidePosition = new Vector3(xPosition, topMazeBorder);
 
-            frame.Add(new WallInfo(bottomSidePosition));
-            frame.Add(new WallInfo(topSidePosition));
+            WallInfo bottomSideWall = new WallInfo(bottomSidePosition);
+            WallInfo topSideWall = new WallInfo(topSidePosition);
+
+            grid[_mazeSize.y - 1, i].ContactWalls.Add(bottomSideWall);
+            grid[0, i].ContactWalls.Add(topSideWall);
+
+            frame.Add(bottomSideWall);
+            frame.Add(topSideWall);
         }
 
         return frame;
@@ -134,6 +158,7 @@ public sealed class MazeGenerator : MonoBehaviour
         {
             if(TryMoveNext(current, out next) == true)
             {
+                current.DistanceToStart = (uint)path.Count;
                 path.Push(current);
                 current = next;
             }
@@ -150,7 +175,12 @@ public sealed class MazeGenerator : MonoBehaviour
             Vector3 position = (cell1.Position + cell2.Position) / 2;
             float angle = Vector3.Angle(Vector3.up, cell2.Position - cell1.Position);
 
-            insideWalls.Add(new WallInfo(position, new Vector3(0, 0, angle), type));
+            WallInfo wall = new WallInfo(position, new Vector3(0, 0, angle), type);
+
+            cell1.ContactWalls.Add(wall);
+            cell2.ContactWalls.Add(wall);
+
+            insideWalls.Add(wall);
         }
 
         void DeleteWallBetweenCells(MazeCell cell1, MazeCell cell2)
@@ -159,6 +189,10 @@ public sealed class MazeGenerator : MonoBehaviour
             float angle = Vector3.Angle(Vector3.up, cell2.Position - cell1.Position);
 
             WallInfo wall = new WallInfo(position, new Vector3(0, 0, angle));
+
+            cell1.ContactWalls.Remove(wall);
+            cell2.ContactWalls.Remove(wall);
+
             insideWalls.Remove(wall);
         }
 
@@ -188,6 +222,44 @@ public sealed class MazeGenerator : MonoBehaviour
         }
     }
 
+    private Trigger CreateMazeExit(MazeCell[,] mazeCells, List<WallInfo> frame)
+    {
+        MazeCell farther = mazeCells[0, 0];
+
+        for(int i = 0; i < mazeCells.GetLength(0); i++)
+        {
+            if (mazeCells[i, 0].DistanceToStart > farther.DistanceToStart) 
+                farther = mazeCells[i, 0];
+
+            if (mazeCells[i, mazeCells.GetLength(1) - 1].DistanceToStart > farther.DistanceToStart) 
+                farther = mazeCells[i, mazeCells.GetLength(1) - 1];
+        }
+
+        for(int i = 0; i < mazeCells.GetLength(1); i++)
+        {
+            if (mazeCells[0, i].DistanceToStart > farther.DistanceToStart) 
+                farther = mazeCells[0, i];
+
+            if (mazeCells[mazeCells.GetLength(0) - 1, i].DistanceToStart > farther.DistanceToStart) 
+                farther = mazeCells[mazeCells.GetLength(0) - 1, i];
+        }
+
+        for(int i = 0; i < frame.Count; i++)
+        {
+            if(farther.ContactWalls.Contains(frame[i]))
+            {
+                GameObject exit = Instantiate(_finishTrigger.gameObject, frame[i].Position, Quaternion.Euler(frame[i].Rotation), _mazeContainer);
+
+                farther.ContactWalls.Remove(frame[i]);
+                frame.Remove(frame[i]);
+                
+                return exit.GetComponent<Trigger>();
+            }
+        }
+
+        return null;
+    }
+
     private void DeleteWalls(List<WallInfo> insideWalls)
     {
         int count = (int)Mathf.Lerp(insideWalls.Count, 0, _mazeIntegrity);
@@ -202,13 +274,14 @@ public sealed class MazeGenerator : MonoBehaviour
             Instantiate(_simpleWallPrefab, wall.Position, Quaternion.Euler(wall.Rotation), _mazeContainer);
     }
 
-    private struct WallInfo
+    public struct WallInfo
     {
         public Vector3 Position { get; private set; }
         public Vector3 Rotation { get; private set; }
         public WallType Type => _type;
 
         private WallType _type;
+
         public WallInfo(Vector3 position, Vector3 rotation, WallType type = WallType.simple)
         {
             _type = type;
@@ -230,14 +303,16 @@ public sealed class MazeGenerator : MonoBehaviour
         }
     }
 
-    private class MazeCell : IConnectable
+    public class MazeCell : IConnectable
     {
         public List<IConnectable> ConnectedSubjects => _connectedSubjects;
         public int ConnectionsCount => _connectedSubjects.Count;
         public Vector3 Position { get; private set; }
         public bool Visited { get; set; }
+        public uint DistanceToStart { get; set; }
+        public List<WallInfo> ContactWalls { get; set; } = new List<WallInfo>();
+        
         private List<IConnectable> _connectedSubjects;
-
 
         public MazeCell(Vector3 position, bool visited = false)
         {
@@ -271,3 +346,18 @@ public sealed class MazeGenerator : MonoBehaviour
     }
 }
 
+public class Maze
+{
+    public MazeGenerator.MazeCell StartCell { get; private set; }
+    public MazeGenerator.MazeCell[,] MazeGrid { get; private set; }
+    public Trigger ExitTrigger { get; private set; }
+
+    public Maze(MazeGenerator.MazeCell startCell, MazeGenerator.MazeCell[,] grid, Trigger exitTrigger)
+    {
+        ExitTrigger = exitTrigger;
+        MazeGrid = grid;
+        StartCell = startCell;
+    }
+
+    public Maze() { }
+}
