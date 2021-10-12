@@ -32,5 +32,4 @@ public class GameManager : Singleton<GameManager>
         GameObject go = Instantiate(_playerPrefab.gameObject, position, Quaternion.identity, transform);
         return go.GetComponent<PlayerController>();
     }
-
 }
