@@ -17,10 +17,8 @@ public class PlayerController : MonoBehaviour
 
     private void Update()
     {
-        float x = Input.GetAxis("Horizontal");
-        float y = Input.GetAxis("Vertical");
-
-        _direction = new Vector2(x, y);
+        Vector3 acceleration = Input.acceleration;
+        _direction = new Vector2(acceleration.x, acceleration.y);
     }
 
     private void FixedUpdate()

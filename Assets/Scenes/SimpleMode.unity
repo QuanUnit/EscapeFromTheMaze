@@ -361,7 +361,7 @@ MonoBehaviour:
     _openingWallPrefab: {fileID: 6143081397473487285, guid: c0bb1f5eaac58e44884245fdd77dac0c, type: 3}
     _buttonPrefab: {fileID: 0}
     _buttonsCount: 0
-  _mazeSize: {x: 5, y: 5}
+  _mazeSize: {x: 15, y: 8}
   _mazePosition: {x: -4, y: -4}
   _mazeIntegrity: 1
   _mazeContainer: {fileID: 1045766561}

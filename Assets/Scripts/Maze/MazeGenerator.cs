@@ -44,20 +44,22 @@ public sealed class MazeGenerator : MonoBehaviour
 
         MazeCell[,] mazeCellsGrid = GenerateCellsGrid();
         MazeCell startCell = mazeCellsGrid[Random.Range(0, _mazeSize.y), Random.Range(0, _mazeSize.x)];
-
+        MazeCell lastCell;
+        
         List<WallInfo> mazeFrame = CreateMazeFrame(mazeCellsGrid);
-        List<WallInfo> insideWalls = BypassingMazeGeneration(startCell);
+        List<WallInfo> insideWalls = BypassingMazeGeneration(startCell, out lastCell);
 
         DeleteWalls(insideWalls);
 
-        Trigger exitTrigger = CreateMazeExit(mazeCellsGrid, mazeFrame, out MazeCell last);
+        Trigger exitTrigger = CreateMazeExit(lastCell, mazeFrame);
 
-        Maze maze = new Maze(startCell, last, mazeCellsGrid, exitTrigger,_mazeContainer);
+        Maze maze = new Maze(startCell, lastCell, mazeCellsGrid, exitTrigger, _mazeContainer);
 
         BuildMaze(mazeFrame);
         BuildMaze(insideWalls);
 
         _filler.FillMaze(maze);
+        
         return maze;
     }
 
@@ -73,7 +75,9 @@ public sealed class MazeGenerator : MonoBehaviour
 
         float topMazeBorder = _mazePosition.y + _mazeSize.y * _wallLength;
         float rightMazeBorder = _mazePosition.x + _mazeSize.x * _wallLength;
-
+        
+        MazeObjectLocationType locationType = MazeObjectLocationType.Side;
+        
         for (int i = 0; i < _mazeSize.y; i++)
         {
             float yPosition = _mazePosition.y + _wallOffset + _wallLength * i;
@@ -81,8 +85,8 @@ public sealed class MazeGenerator : MonoBehaviour
             Vector3 leftSidePosition = new Vector3(_mazePosition.x, yPosition);
             Vector3 rightSidePosition = new Vector3(rightMazeBorder, yPosition);
 
-            WallInfo leftSideWall = new WallInfo(leftSidePosition, new Vector3(0, 0, 90));
-            WallInfo rightSideWall = new WallInfo(rightSidePosition, new Vector3(0, 0, 90));
+            WallInfo leftSideWall = new WallInfo(leftSidePosition, new Vector3(0, 0, 90), locationType);
+            WallInfo rightSideWall = new WallInfo(rightSidePosition, new Vector3(0, 0, 90), locationType);
 
             grid[i, 0].ContactWalls.Add(leftSideWall);
             grid[i, _mazeSize.x - 1].ContactWalls.Add(rightSideWall);
@@ -98,8 +102,8 @@ public sealed class MazeGenerator : MonoBehaviour
             Vector3 bottomSidePosition = new Vector3(xPosition, _mazePosition.y);
             Vector3 topSidePosition = new Vector3(xPosition, topMazeBorder);
 
-            WallInfo bottomSideWall = new WallInfo(bottomSidePosition);
-            WallInfo topSideWall = new WallInfo(topSidePosition);
+            WallInfo bottomSideWall = new WallInfo(bottomSidePosition, locationType);
+            WallInfo topSideWall = new WallInfo(topSidePosition, locationType);
 
             grid[0, i].ContactWalls.Add(bottomSideWall);
             grid[_mazeSize.y - 1, i].ContactWalls.Add(topSideWall);
@@ -122,15 +126,21 @@ public sealed class MazeGenerator : MonoBehaviour
             for (int j = 0; j < grid.GetLength(1); j++)
             {
                 Vector3 cellPosition = startPosition + new Vector3(_wallLength * j, _wallLength * i);
-                grid[i, j] = new MazeCell(cellPosition);
+                MazeObjectLocationType locationType = MazeObjectLocationType.Inside;
+
+                if (i == 0 || i == grid.GetLength(0) - 1 ||
+                    j == 0 || j == grid.GetLength(1) - 1)
+                    locationType = MazeObjectLocationType.Side;
+                
+                grid[i, j] = new MazeCell(cellPosition, locationType);
             }
         }
 
-        ÑonnectNeighboringCells(grid);
+        ConnectNeighboringCells(grid);
 
         return grid;
 
-        void ÑonnectNeighboringCells(MazeCell[,] grid)
+        void ConnectNeighboringCells(MazeCell[,] grid)
         {
             for (int i = 0; i < grid.GetLength(0); i++)
             {
@@ -145,11 +155,13 @@ public sealed class MazeGenerator : MonoBehaviour
         }
     }
 
-    private List<WallInfo> BypassingMazeGeneration(MazeCell startCell)
+    private List<WallInfo> BypassingMazeGeneration(MazeCell startCell, out MazeCell lastCell)
     {
         List<WallInfo> insideWalls = new List<WallInfo>();
         Stack<MazeCell> path = new Stack<MazeCell>();
 
+        lastCell = startCell;
+        
         MazeCell current = startCell;
         MazeCell next;
 
@@ -161,6 +173,11 @@ public sealed class MazeGenerator : MonoBehaviour
             {
                 current.DistanceToStart = (uint)path.Count;
                 path.Push(current);
+
+                if (current.LocationType == MazeObjectLocationType.Side &&
+                    current.DistanceToStart > lastCell.DistanceToStart)
+                    lastCell = current;
+                
                 current = next;
             }
             else
@@ -201,7 +218,7 @@ public sealed class MazeGenerator : MonoBehaviour
         {
             next = default;
 
-            var tmp = System.Array.FindAll(current.AllNeighboringCells.ToArray(), cell => ((MazeCell)cell).Visited == false);
+            var tmp = System.Array.FindAll(current.AllNeighboringCells.ToArray(), cell => cell.Visited == false);
             var possibleNeighbors = new List<IConnectable>(tmp);
 
             if (possibleNeighbors.Count == 0)
@@ -225,38 +242,19 @@ public sealed class MazeGenerator : MonoBehaviour
         }
     }
 
-    private Trigger CreateMazeExit(MazeCell[,] mazeCells, List<WallInfo> frame, out MazeCell last)
+    private Trigger CreateMazeExit(MazeCell lastSideCell, List<WallInfo> mazeFrame)
     {
-        MazeCell farther = mazeCells[0, 0];
-
-        for(int i = 0; i < mazeCells.GetLength(0); i++)
+        for(int i = 0; i < lastSideCell.ContactWalls.Count; i++)
         {
-            if (mazeCells[i, 0].DistanceToStart > farther.DistanceToStart) 
-                farther = mazeCells[i, 0];
-
-            if (mazeCells[i, mazeCells.GetLength(1) - 1].DistanceToStart > farther.DistanceToStart) 
-                farther = mazeCells[i, mazeCells.GetLength(1) - 1];
-        }
-
-        for(int i = 0; i < mazeCells.GetLength(1); i++)
-        {
-            if (mazeCells[0, i].DistanceToStart > farther.DistanceToStart) 
-                farther = mazeCells[0, i];
-
-            if (mazeCells[mazeCells.GetLength(0) - 1, i].DistanceToStart > farther.DistanceToStart) 
-                farther = mazeCells[mazeCells.GetLength(0) - 1, i];
-        }
-
-        last = farther;
-
-        for(int i = 0; i < frame.Count; i++)
-        {
-            if(farther.ContactWalls.Contains(frame[i]))
+            WallInfo sideWall = lastSideCell.ContactWalls[i];
+            
+            if(sideWall.LocationType == MazeObjectLocationType.Side)
             {
-                GameObject exit = Instantiate(_finishTrigger.gameObject, frame[i].Position, Quaternion.Euler(frame[i].Rotation), _mazeContainer);
+                GameObject exit = Instantiate(_finishTrigger.gameObject, sideWall.Position, Quaternion.Euler(sideWall.Rotation), _mazeContainer);
 
-                farther.ContactWalls.Remove(frame[i]);
-                frame.Remove(frame[i]);
+                lastSideCell.ContactWalls.Remove(sideWall);
+                mazeFrame.Remove(sideWall);
+                
                 return exit.GetComponent<Trigger>();
             }
         }
@@ -282,15 +280,18 @@ public sealed class MazeGenerator : MonoBehaviour
     {
         public Vector3 Position { get; private set; }
         public Vector3 Rotation { get; private set; }
+        public MazeObjectLocationType LocationType { get; private set; }
 
-        public WallInfo(Vector3 position, Vector3 rotation)
+        public WallInfo(Vector3 position, Vector3 rotation, MazeObjectLocationType locationType = MazeObjectLocationType.Inside)
         {
+            LocationType = locationType;
             Position = position;
             Rotation = rotation;
         }
 
-        public WallInfo(Vector3 position)
+        public WallInfo(Vector3 position, MazeObjectLocationType locationType = MazeObjectLocationType.Inside)
         {
+            LocationType = locationType;
             Position = position;
             Rotation = Vector3.zero;
         }
@@ -302,29 +303,21 @@ public sealed class MazeGenerator : MonoBehaviour
         public List<MazeCell> AllNeighboringCells { get; private set; } = new List<MazeCell>();
         public List<WallInfo> ContactWalls { get; private set; } = new List<WallInfo>();
         public int ConnectionsCount => _connectedNeighboringCells.Count;
-        public Vector3 Position { get; private set; }
         public bool Visited { get; set; }
         public uint DistanceToStart { get; set; }
+        public Vector3 Position { get; private set; }
+        public  MazeObjectLocationType LocationType { get; private set; } 
         
         private List<IConnectable> _connectedNeighboringCells;
 
-        public MazeCell(Vector3 position, bool visited = false)
+        public MazeCell(Vector3 position, MazeObjectLocationType locationType = MazeObjectLocationType.Inside, bool visited = false)
         {
+            LocationType = locationType;
             Visited = visited;
             Position = position;
             _connectedNeighboringCells = new List<IConnectable>();
         }
 
-        public void AddNeighbour(MazeCell cell)
-        {
-            if (AllNeighboringCells.Contains(cell) == false)
-                AllNeighboringCells.Add(cell);
-        }
-
-        public void RemoveNeighbour(MazeCell cell)
-        {
-            AllNeighboringCells.Remove(cell);
-        }
         public void Connect(IConnectable subject)
         {
             if(_connectedNeighboringCells.Contains(subject) == false)
@@ -348,6 +341,12 @@ public sealed class MazeGenerator : MonoBehaviour
                 Disconnect(subject);
         }
     }
+}
+
+public enum MazeObjectLocationType
+{
+    Side,
+    Inside,
 }
 
 public class Maze
