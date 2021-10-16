@@ -1,6 +1,11 @@
 using System.Collections;
 using System.Collections.Generic;
+using System.Data.Common;
+using TMPro;
+using Unity.Mathematics;
 using UnityEngine;
+using UnityEngine.UI;
+using Random = UnityEngine.Random;
 
 public sealed class MazeGenerator : MonoBehaviour
 {
@@ -11,8 +16,6 @@ public sealed class MazeGenerator : MonoBehaviour
     [SerializeField] private Vector2Int _mazeSize;
     [SerializeField] private Vector2 _mazePosition;
 
-    [SerializeField] [Range(0.001f, 1)] private float _mazeIntegrity;
-
     [Header("Links")]
     [SerializeField] private Transform _mazeContainer;
 
@@ -21,6 +24,8 @@ public sealed class MazeGenerator : MonoBehaviour
 
     private float _wallLength;
     private float _wallOffset;
+
+    [SerializeField] private GameObject test;
 
     private void Awake()
     {
@@ -45,15 +50,13 @@ public sealed class MazeGenerator : MonoBehaviour
         MazeCell[,] mazeCellsGrid = GenerateCellsGrid();
         MazeCell startCell = mazeCellsGrid[Random.Range(0, _mazeSize.y), Random.Range(0, _mazeSize.x)];
         MazeCell lastCell;
-        
-        List<WallInfo> mazeFrame = CreateMazeFrame(mazeCellsGrid);
-        List<WallInfo> insideWalls = BypassingMazeGeneration(startCell, out lastCell);
 
-        DeleteWalls(insideWalls);
+        List<WallInfo> mazeFrame = CreateMazeFrame(mazeCellsGrid);
+        List<WallInfo> insideWalls = BypassingMazeGeneration(startCell, out lastCell, out var branches);
 
         Trigger exitTrigger = CreateMazeExit(lastCell, mazeFrame);
 
-        Maze maze = new Maze(startCell, lastCell, mazeCellsGrid, exitTrigger, _mazeContainer);
+        Maze maze = new Maze(startCell, lastCell, mazeCellsGrid, exitTrigger, _mazeContainer, branches);
 
         BuildMaze(mazeFrame);
         BuildMaze(insideWalls);
@@ -155,37 +158,56 @@ public sealed class MazeGenerator : MonoBehaviour
         }
     }
 
-    private List<WallInfo> BypassingMazeGeneration(MazeCell startCell, out MazeCell lastCell)
+    private List<WallInfo> BypassingMazeGeneration(MazeCell startCell, out MazeCell lastCell, out Dictionary<List<MazeCell>, Maze.BranchType> branches)
     {
+        branches = new Dictionary<List<MazeCell>, Maze.BranchType>();
+
+        List<MazeCell> mainBranch = new List<MazeCell>();
+        List<MazeCell> secondaryBranch = new List<MazeCell>();
+        
         List<WallInfo> insideWalls = new List<WallInfo>();
         Stack<MazeCell> path = new Stack<MazeCell>();
 
         lastCell = startCell;
         
         MazeCell current = startCell;
-        MazeCell next;
-
+        
         path.Push(current);
-
+        current.Visited = true;
+        
         while (path.Count > 0)
         {
-            if(TryMoveNext(current, out next) == true)
+            if(TryMoveNext(current, out var next) == true)
             {
-                current.DistanceToStart = (uint)path.Count;
                 path.Push(current);
+                next.DistanceToStart = current.DistanceToStart + 1;
 
-                if (current.LocationType == MazeObjectLocationType.Side &&
-                    current.DistanceToStart > lastCell.DistanceToStart)
-                    lastCell = current;
+                if (next.LocationType == MazeObjectLocationType.Side &&
+                    next.DistanceToStart > lastCell.DistanceToStart)
+                {
+                    lastCell = next;
+                    mainBranch = new List<MazeCell>(path);
+                }
+
+                if (secondaryBranch.Count != 0)
+                {
+                    branches.Add(new List<MazeCell>(secondaryBranch), Maze.BranchType.Secondary);
+                    secondaryBranch.Clear();
+                }
                 
                 current = next;
             }
             else
             {
                 current = path.Pop();
+                secondaryBranch.Add(current);
             }
         }
-
+        
+        mainBranch.Reverse();
+        branches.Add(mainBranch, Maze.BranchType.Main);
+        RemoveBranchesCollisions(mainBranch, branches);
+        
         return insideWalls;
 
         void CreateWallBetweenCells(MazeCell cell1, MazeCell cell2)
@@ -194,7 +216,10 @@ public sealed class MazeGenerator : MonoBehaviour
             float angle = Vector3.Angle(Vector3.up, cell2.Position - cell1.Position);
 
             WallInfo wall = new WallInfo(position, new Vector3(0, 0, angle));
-
+            
+            if(cell1.ContactWalls.Contains(wall) || cell2.ContactWalls.Contains(wall))
+                return;
+            
             cell1.ContactWalls.Add(wall);
             cell2.ContactWalls.Add(wall);
 
@@ -203,42 +228,64 @@ public sealed class MazeGenerator : MonoBehaviour
 
         void DeleteWallBetweenCells(MazeCell cell1, MazeCell cell2)
         {
-            Vector3 position = (cell1.Position + cell2.Position) / 2;
-            float angle = Vector3.Angle(Vector3.up, cell2.Position - cell1.Position);
+            for (int i = 0; i < cell1.ContactWalls.Count; i++)
+            {
+                for (int j = 0; j < cell2.ContactWalls.Count; j++)
+                {
+                    if (cell1.ContactWalls[i].Equals(cell2.ContactWalls[j]))
+                    {
+                        WallInfo wall = cell1.ContactWalls[i];
+                        cell1.ContactWalls.Remove(wall);
+                        cell2.ContactWalls.Remove(wall);
 
-            WallInfo wall = new WallInfo(position, new Vector3(0, 0, angle));
-
-            cell1.ContactWalls.Remove(wall);
-            cell2.ContactWalls.Remove(wall);
-
-            insideWalls.Remove(wall);
+                        insideWalls.Remove(wall);
+                        
+                        return;
+                    }
+                }
+            }
         }
 
         bool TryMoveNext(MazeCell current, out MazeCell next)
         {
             next = default;
+            
+            var possibleNeighbors = System.Array.FindAll(current.AllNeighboringCells.ToArray(), cell => cell.Visited == false);
 
-            var tmp = System.Array.FindAll(current.AllNeighboringCells.ToArray(), cell => cell.Visited == false);
-            var possibleNeighbors = new List<IConnectable>(tmp);
-
-            if (possibleNeighbors.Count == 0)
+            if (possibleNeighbors.Length == 0)
                 return false;
 
-            next = (MazeCell)possibleNeighbors[Random.Range(0, possibleNeighbors.Count)];
-            possibleNeighbors.Remove(next);
+            next = possibleNeighbors[Random.Range(0, possibleNeighbors.Length)];
 
-            if(current.Visited)
+            if(current.Visited == true)
                 DeleteWallBetweenCells(current, next);
 
-            current.Visited = true;
             next.Visited = true;
-
+            
             current.Connect(next);
 
             foreach (MazeCell neighbour in possibleNeighbors)
-                CreateWallBetweenCells(current, neighbour);
+                if(neighbour != next) CreateWallBetweenCells(current, neighbour);
 
             return true;
+        }
+    }
+    
+    void RemoveBranchesCollisions(List<MazeCell> mask, Dictionary<List<MazeCell>, Maze.BranchType> mazeBranches)
+    {
+        foreach (var branch in mazeBranches)
+        {
+            if(branch.Value == Maze.BranchType.Main)
+                continue;
+
+            for (int i = 0; i < branch.Key.Count; i++)
+            {
+                if (mask.Contains(branch.Key[i]))
+                {
+                    branch.Key.RemoveAt(i);
+                    i--;
+                }
+            }
         }
     }
 
@@ -260,14 +307,6 @@ public sealed class MazeGenerator : MonoBehaviour
         }
 
         return null;
-    }
-
-    private void DeleteWalls(List<WallInfo> insideWalls)
-    {
-        int count = (int)Mathf.Lerp(insideWalls.Count, 0, _mazeIntegrity);
-
-        for (int i = 0; i < count; i++)
-            insideWalls.RemoveAt(Random.Range(0, insideWalls.Count));
     }
 
     private void BuildMaze(List<WallInfo> walls)
@@ -354,13 +393,14 @@ public class Maze
     public MazeGenerator.MazeCell StartCell { get; private set; }
     public MazeGenerator.MazeCell LastCell { get; private set; }
     public MazeGenerator.MazeCell[,] MazeGrid { get; private set; }
+    public Dictionary<List<MazeGenerator.MazeCell>, BranchType> Branches { get; private set; }
     public Trigger ExitTrigger { get; private set; }
     public Transform Container { get; private set; }
-    public int Width => MazeGrid.GetLength(1);
-    public int Height => MazeGrid.GetLength(0);
-
-    public Maze(MazeGenerator.MazeCell startCell, MazeGenerator.MazeCell lastCell, MazeGenerator.MazeCell[,] grid, Trigger exitTrigger, Transform container)
+    
+    public Maze(MazeGenerator.MazeCell startCell, MazeGenerator.MazeCell lastCell, MazeGenerator.MazeCell[,] grid, 
+        Trigger exitTrigger, Transform container, Dictionary<List<MazeGenerator.MazeCell>, BranchType> branches)
     {
+        Branches = branches;
         Container = container;  
         LastCell = lastCell;
         ExitTrigger = exitTrigger;
@@ -368,5 +408,9 @@ public class Maze
         StartCell = startCell;
     }
 
-    public Maze() { }
+    public enum BranchType
+    {
+        Main,
+        Secondary,
+    }
 }

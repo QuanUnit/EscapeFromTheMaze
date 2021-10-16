@@ -358,12 +358,78 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _filler:
-    _openingWallPrefab: {fileID: 6143081397473487285, guid: c0bb1f5eaac58e44884245fdd77dac0c, type: 3}
-    _buttonPrefab: {fileID: 0}
+    _openingWallPrefab: {fileID: -6498693340431965392, guid: c0bb1f5eaac58e44884245fdd77dac0c, type: 3}
+    _buttonPrefab: {fileID: 3276648902401161030, guid: 370e208fb099c4834a27c8577774aa8d, type: 3}
     _buttonsCount: 0
-  _mazeSize: {x: 15, y: 8}
-  _mazePosition: {x: -4, y: -4}
-  _mazeIntegrity: 1
+  _mazeSize: {x: 18, y: 13}
+  _mazePosition: {x: -5, y: -4}
   _mazeContainer: {fileID: 1045766561}
   _simpleWallPrefab: {fileID: 6143081397473487285, guid: 0d9b58357eec7364bb95a96ece42216c, type: 3}
   _finishTrigger: {fileID: -5671353028853128143, guid: 68757c58a15164342884a004f7627b82, type: 3}
+  test: {fileID: 6036771827600998147, guid: cd025cc4511c44504be4f42b42450c9f, type: 3}
+--- !u!1 &1687050309
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1687050312}
+  - component: {fileID: 1687050311}
+  - component: {fileID: 1687050310}
+  m_Layer: 0
+  m_Name: EventSystem
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &1687050310
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1687050309}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4f231c4fb786f3946a6b90b886c48677, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_HorizontalAxis: Horizontal
+  m_VerticalAxis: Vertical
+  m_SubmitButton: Submit
+  m_CancelButton: Cancel
+  m_InputActionsPerSecond: 10
+  m_RepeatDelay: 0.5
+  m_ForceModuleActive: 0
+--- !u!114 &1687050311
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1687050309}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 76c392e42b5098c458856cdf6ecaaaa1, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_FirstSelected: {fileID: 0}
+  m_sendNavigationEvents: 1
+  m_DragThreshold: 10
+--- !u!4 &1687050312
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1687050309}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_RootOrder: 2
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
