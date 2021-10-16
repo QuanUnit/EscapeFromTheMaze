@@ -214,8 +214,6 @@ public sealed class MazeGenerator : MonoBehaviour
 
         next.Visited = true;
 
-        current.Connect(next);
-
         foreach (MazeCell neighbour in possibleNeighbors)
             if (neighbour != next) CreateWallBetweenCells(current, neighbour);
 

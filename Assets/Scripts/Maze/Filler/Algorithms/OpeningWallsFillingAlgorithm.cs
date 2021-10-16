@@ -71,12 +71,10 @@ public class OpeningWallsFillingAlgorithm : MazeFillingAlgorithm
     private MazeButton SpawnMazeButton(MazeCell cell, Transform container)
     {
         SimpleWall connectedWall = cell.ContactWalls[Random.Range(0, cell.ContactWalls.Count)];
-        float angle = Vector3.Angle(Vector3.up, connectedWall.transform.position - cell.Position);
+        float angle = Vector3.Angle(Vector3.down, connectedWall.transform.position - cell.Position);
 
-        GameObject buttonGO = GameObject.Instantiate(_buttonPrefab.gameObject, cell.Position,
-            Quaternion.Euler(0, 0, connectedWall.transform.position.x > cell.Position.x ? -angle : angle), container);
-
-        buttonGO.transform.LookAt(cell.Position);
+        GameObject buttonGO = GameObject.Instantiate(_buttonPrefab.gameObject, connectedWall.transform.position,
+            Quaternion.Euler(0, 0, connectedWall.transform.position.x > cell.Position.x ? angle : -angle), container);
 
         MazeButton button = buttonGO.GetComponent<MazeButton>();
 

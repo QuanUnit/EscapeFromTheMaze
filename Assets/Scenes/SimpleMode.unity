@@ -360,6 +360,7 @@ MonoBehaviour:
   _filler:
     _mazeFillingAlgorithms:
     - {fileID: 11400000, guid: f222178a2ac026f4790a3cb21614b141, type: 2}
+    - {fileID: 11400000, guid: fc9cc8fc728eb674d8c777d818e3f4fb, type: 2}
   _mazeSize: {x: 18, y: 13}
   _mazePosition: {x: -5, y: -4}
   _mazeContainer: {fileID: 1045766561}
