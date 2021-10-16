@@ -358,13 +358,12 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _filler:
-    _openingWallPrefab: {fileID: -6498693340431965392, guid: c0bb1f5eaac58e44884245fdd77dac0c, type: 3}
-    _buttonPrefab: {fileID: 3276648902401161030, guid: 370e208fb099c4834a27c8577774aa8d, type: 3}
-    _buttonsCount: 0
+    _mazeFillingAlgorithms:
+    - {fileID: 11400000, guid: f222178a2ac026f4790a3cb21614b141, type: 2}
   _mazeSize: {x: 18, y: 13}
   _mazePosition: {x: -5, y: -4}
   _mazeContainer: {fileID: 1045766561}
-  _simpleWallPrefab: {fileID: 6143081397473487285, guid: 0d9b58357eec7364bb95a96ece42216c, type: 3}
+  _simpleWallPrefab: {fileID: 5706204162577319754, guid: 0d9b58357eec7364bb95a96ece42216c, type: 3}
   _finishTrigger: {fileID: -5671353028853128143, guid: 68757c58a15164342884a004f7627b82, type: 3}
   test: {fileID: 6036771827600998147, guid: cd025cc4511c44504be4f42b42450c9f, type: 3}
 --- !u!1 &1687050309

@@ -6,23 +6,27 @@ using UnityEngine;
 [RequireComponent(typeof(Trigger))]
 public class MazeButton : MonoBehaviour
 {
-    private IInteractive _interactiveTarget;
+    public event Action OnClick;
     private Trigger _trigger;
-    
+
+    private bool _canUse = true;
+        
+    private void OnEnable() => _trigger.OnTriggerEnter += OnEnterHandler;
+    private void OnDisable() => _trigger.OnTriggerEnter -= OnEnterHandler;
+
     private void Awake()
     {
         _trigger = GetComponent<Trigger>();
     }
 
-    public void Initialize(IInteractive target)
-    {
-        _interactiveTarget = target;
-        _trigger.OnTriggerEnter += OnEnterHandler;
-    }
-
     private void OnEnterHandler(Collider2D other, Trigger requester)
     {
-        _interactiveTarget.Interact();
-        _trigger.OnTriggerEnter -= OnEnterHandler;
+        if (_canUse) Use();
+    }
+
+    private void Use()
+    {
+        _canUse = false;
+        OnClick?.Invoke();
     }
 }
