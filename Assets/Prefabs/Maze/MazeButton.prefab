@@ -12,7 +12,8 @@ GameObject:
   - component: {fileID: 6143081397473487286}
   - component: {fileID: 6143081397473487288}
   - component: {fileID: -6199711036739562963}
-  - component: {fileID: 3276648902401161030}
+  - component: {fileID: 393529811875064896}
+  - component: {fileID: 4648250086009665232}
   m_Layer: 0
   m_Name: MazeButton
   m_TagString: Untagged
@@ -73,7 +74,7 @@ SpriteRenderer:
   m_LightmapParameters: {fileID: 0}
   m_SortingLayerID: 0
   m_SortingLayer: 0
-  m_SortingOrder: 0
+  m_SortingOrder: -2
   m_Sprite: {fileID: 7482667652216324306, guid: cf8b94d7ba2004b9fa16604d02ca5e7d, type: 3}
   m_Color: {r: 0.9302243, g: 0.966587, b: 0.9811321, a: 1}
   m_FlipX: 0
@@ -124,7 +125,26 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   contactsGameObjects: []
---- !u!114 &3276648902401161030
+--- !u!95 &393529811875064896
+Animator:
+  serializedVersion: 3
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6143081397473487285}
+  m_Enabled: 1
+  m_Avatar: {fileID: 0}
+  m_Controller: {fileID: 9100000, guid: 45c73d22216da7c47b54561653d771fa, type: 2}
+  m_CullingMode: 0
+  m_UpdateMode: 0
+  m_ApplyRootMotion: 0
+  m_LinearVelocityBlending: 0
+  m_WarningMessage: 
+  m_HasTransformHierarchy: 1
+  m_AllowConstantClipSamplingOptimization: 1
+  m_KeepAnimatorControllerStateOnDisable: 0
+--- !u!114 &4648250086009665232
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}

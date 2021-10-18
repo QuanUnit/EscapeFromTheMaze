@@ -13,5 +13,5 @@ MonoBehaviour:
   m_Name: OpeningWallsAndButtons
   m_EditorClassIdentifier: 
   _openingWallPrefab: {fileID: -6498693340431965392, guid: c0bb1f5eaac58e44884245fdd77dac0c, type: 3}
-  _buttonPrefab: {fileID: 3276648902401161030, guid: 370e208fb099c4834a27c8577774aa8d, type: 3}
+  _buttonPrefab: {fileID: 4648250086009665232, guid: 370e208fb099c4834a27c8577774aa8d, type: 3}
   _wallsCountProportion: 0.3

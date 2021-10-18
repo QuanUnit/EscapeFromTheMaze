@@ -12,6 +12,7 @@
   </component>
   <component name="HighlightingSettingsPerFile">
     <setting file="file://$PROJECT_DIR$/Assets/Scripts/Tools/Trigger.cs" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/Assets/Scripts/Player/PlayerObserver.cs" root0="FORCE_HIGHLIGHTING" />
   </component>
   <component name="ProjectId" id="1zUKPxZItkVQ0BNAzdXwT0DjuTE" />
   <component name="ProjectLevelVcsManager" settingsEditedManually="true" />
@@ -28,6 +29,14 @@
     <property name="vue.rearranger.settings.migration" value="true" />
   </component>
   <component name="RunManager" selected="Attach to Unity Editor.Attach to Unity Editor">
+    <configuration name="Standalone Player" type="RunUnityExe" factoryName="Unity Executable">
+      <option name="EXE_PATH" value="$PROJECT_DIR$/../../Builds/MacTest.app/Contents/MacOS/EscapeFromTheMaze" />
+      <option name="PROGRAM_PARAMETERS" value="" />
+      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/../../Builds/MacTest.app/Contents/MacOS" />
+      <option name="PASS_PARENT_ENVS" value="1" />
+      <option name="USE_EXTERNAL_CONSOLE" value="0" />
+      <method v="2" />
+    </configuration>
     <configuration name="Attach to Unity Editor &amp; Play" type="UNITY_DEBUG_RUN_CONFIGURATION" factoryName="UNITY_ATTACH_AND_PLAY" show_console_on_std_err="false" show_console_on_std_out="false" port="50000" address="localhost">
       <option name="allowRunningInParallel" value="false" />
       <option name="listenPortForConnections" value="false" />
@@ -61,6 +70,10 @@
       <workItem from="1634217796457" duration="9996000" />
       <workItem from="1634287470318" duration="20308000" />
       <workItem from="1634361207970" duration="7478000" />
+      <workItem from="1634478037301" duration="844000" />
+      <workItem from="1634480105889" duration="193000" />
+      <workItem from="1634499277421" duration="401000" />
+      <workItem from="1634538814263" duration="6877000" />
     </task>
     <servers />
   </component>
