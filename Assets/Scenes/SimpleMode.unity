@@ -341,7 +341,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 1, y: 1}
   m_AnchorMax: {x: 1, y: 1}
-  m_AnchoredPosition: {x: -100, y: -50}
+  m_AnchoredPosition: {x: -181, y: -131}
   m_SizeDelta: {x: 200, y: 50}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &782833785
@@ -391,8 +391,8 @@ MonoBehaviour:
   m_faceColor:
     serializedVersion: 2
     rgba: 4294967295
-  m_fontSize: 57
-  m_fontSizeBase: 57
+  m_fontSize: 150
+  m_fontSizeBase: 150
   m_fontWeight: 400
   m_enableAutoSizing: 0
   m_fontSizeMin: 18
@@ -624,12 +624,12 @@ MonoBehaviour:
     _mazeFillingAlgorithms:
     - {fileID: 11400000, guid: f222178a2ac026f4790a3cb21614b141, type: 2}
     - {fileID: 11400000, guid: fc9cc8fc728eb674d8c777d818e3f4fb, type: 2}
-  _mazeSize: {x: 18, y: 13}
+    - {fileID: 11400000, guid: df76856efa8e31b43b769c7371c14964, type: 2}
+  _mazeSize: {x: 18, y: 10}
   _mazePosition: {x: -5, y: -4}
   _mazeContainer: {fileID: 1045766561}
   _simpleWallPrefab: {fileID: 5706204162577319754, guid: 0d9b58357eec7364bb95a96ece42216c, type: 3}
   _finishTrigger: {fileID: -5671353028853128143, guid: 68757c58a15164342884a004f7627b82, type: 3}
-  test: {fileID: 6036771827600998147, guid: cd025cc4511c44504be4f42b42450c9f, type: 3}
 --- !u!1 &1687050309
 GameObject:
   m_ObjectHideFlags: 0

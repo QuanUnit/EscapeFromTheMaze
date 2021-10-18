@@ -25,8 +25,6 @@ public sealed class MazeGenerator : MonoBehaviour
     private float _wallLength;
     private float _wallOffset;
 
-    [SerializeField] private GameObject test;
-
     private void Awake()
     {
         Initialize();
@@ -59,7 +57,7 @@ public sealed class MazeGenerator : MonoBehaviour
         Maze maze = new Maze(startCell, lastCell, mazeCellsGrid, exitTrigger, _mazeContainer, branches);
 
         _filler.FillMaze(maze);
-        
+
         return maze;
     }
 
@@ -156,25 +154,28 @@ public sealed class MazeGenerator : MonoBehaviour
         List<MazeCell> secondaryBranch = new List<MazeCell>();
         
         Stack<MazeCell> path = new Stack<MazeCell>();
-
-        lastCell = startCell;
         
         MazeCell current = startCell;
-        
+        lastCell = startCell;
+
         path.Push(current);
         current.Visited = true;
-        
+
         while (path.Count > 0)
         {
-            if(TryMoveNext(current, out var next) == true)
+            bool canMoveNext = CanMoveNext(current, out var next, out var freeNeighbors);
+
+            if (canMoveNext == true)
             {
+                TryRemoveWallBetweenCells(current, next);
+
                 path.Push(current);
                 next.DistanceToStart = current.DistanceToStart + 1;
 
-                if (next.LocationType == MazeObjectLocationType.Side &&
-                    next.DistanceToStart > lastCell.DistanceToStart)
+                if (current.LocationType == MazeObjectLocationType.Side &&
+                     current.DistanceToStart > lastCell.DistanceToStart)
                 {
-                    lastCell = next;
+                    lastCell = current;
                     mainBranch = new List<MazeCell>(path);
                 }
 
@@ -183,7 +184,13 @@ public sealed class MazeGenerator : MonoBehaviour
                     branches.Add(new List<MazeCell>(secondaryBranch), Maze.BranchType.Secondary);
                     secondaryBranch.Clear();
                 }
-                
+
+                foreach (var neighbour in freeNeighbors)
+                {
+                    if(neighbour.Visited == false) CreateWallBetweenCells(current, neighbour);
+                }
+
+                next.Visited = true;
                 current = next;
             }
             else
@@ -192,30 +199,25 @@ public sealed class MazeGenerator : MonoBehaviour
                 current = path.Pop();
             }
         }
-        
+
         mainBranch.Reverse();
         branches.Add(mainBranch, Maze.BranchType.Main);
         RemoveBranchesCollisions(mainBranch, branches);
     }
 
-    private bool TryMoveNext(MazeCell current, out MazeCell next)
+    private bool CanMoveNext(MazeCell current, out MazeCell next, out List<MazeCell> freeNeighbors)
     {
         next = default;
 
-        var possibleNeighbors = System.Array.FindAll(current.AllNeighboringCells.ToArray(), cell => cell.Visited == false);
+        freeNeighbors = new List<MazeCell>();
 
-        if (possibleNeighbors.Length == 0)
-            return false;
+        foreach (var cell in current.AllNeighboringCells)
+            if (cell.Visited == false) freeNeighbors.Add(cell);
 
-        next = possibleNeighbors[Random.Range(0, possibleNeighbors.Length)];
+        if (freeNeighbors.Count == 0) return false;
 
-        if (current.Visited == true)
-            DeleteWallBetweenCells(current, next);
-
-        next.Visited = true;
-
-        foreach (MazeCell neighbour in possibleNeighbors)
-            if (neighbour != next) CreateWallBetweenCells(current, neighbour);
+        next = freeNeighbors[Random.Range(0, freeNeighbors.Count)];
+        freeNeighbors.Remove(next);
 
         return true;
     }
@@ -231,24 +233,22 @@ public sealed class MazeGenerator : MonoBehaviour
         cell2.ContactWalls.Add(wall);
     }
 
-    private void DeleteWallBetweenCells(MazeCell cell1, MazeCell cell2)
+    private bool TryRemoveWallBetweenCells(MazeCell cell1, MazeCell cell2)
     {
         for (int i = 0; i < cell1.ContactWalls.Count; i++)
         {
-            for (int j = 0; j < cell2.ContactWalls.Count; j++)
+            SimpleWall wall = cell1.ContactWalls[i];
+
+            if (cell2.ContactWalls.Contains(wall))
             {
-                if (cell1.ContactWalls[i].Equals(cell2.ContactWalls[j]))
-                {
-                    SimpleWall wall = cell1.ContactWalls[i];
-                    cell1.ContactWalls.Remove(wall);
-                    cell2.ContactWalls.Remove(wall);
+                cell1.ContactWalls.Remove(wall);
+                cell2.ContactWalls.Remove(wall);
 
-                    Destroy(wall.gameObject);
-
-                    return;
-                }
+                Destroy(wall.gameObject);
             }
         }
+
+        return false;
     }
 
     private void RemoveBranchesCollisions(List<MazeCell> mask, Dictionary<List<MazeCell>, Maze.BranchType> mazeBranches)

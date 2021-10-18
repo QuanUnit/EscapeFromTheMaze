@@ -6,6 +6,8 @@ using UnityEngine;
 [RequireComponent(typeof(Trigger))]
 public class ScorePoint : MonoBehaviour
 {
+    [SerializeField] int _value;
+
     private Trigger _trigger;
 
     private void Awake()
@@ -21,7 +23,7 @@ public class ScorePoint : MonoBehaviour
         if (other.TryGetComponent<Wallet>(out var wallet) == false)
             return;
 
-        wallet.Add(1);
+        wallet.Add(_value);
         Destroy(gameObject);
     }
 }
