@@ -14,4 +14,10 @@ public class Wallet : MonoBehaviour
         _amount += value;
         OnChanged?.Invoke(_amount);
     }
+
+    public void Reset()
+    {
+        _amount = 0;
+        OnChanged?.Invoke(_amount);
+    }
 }

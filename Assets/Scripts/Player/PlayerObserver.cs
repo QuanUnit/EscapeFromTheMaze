@@ -5,7 +5,7 @@ using UnityEngine;
 public class PlayerObserver : MonoBehaviour
 {
     [SerializeField] private PlayerController _playerPrefab;
-    [SerializeField] private WalletViewer _walletViewer;
+    [SerializeField] private List<WalletViewer> _walletViewers;
 
     private Wallet _wallet;
     private PlayerController _activePlayer;
@@ -21,7 +21,8 @@ public class PlayerObserver : MonoBehaviour
         _wallet = playerGO.GetComponent<Wallet>();
         
         ComponentInitialize();
-        
+        _wallet.Reset();
+
         return _activePlayer;
     }
 
@@ -31,6 +32,9 @@ public class PlayerObserver : MonoBehaviour
     }
     private void ComponentInitialize()
     {
-        _walletViewer.Initialize(_wallet);
+        foreach (var viewer in _walletViewers)
+        {
+            viewer.Initialize(_wallet);
+        }
     }
 }
