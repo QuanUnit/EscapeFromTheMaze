@@ -3,21 +3,21 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class Wallet : MonoBehaviour
+public class Wallet : MonoBehaviour, IPropertyChangeNotifier
 {
-    public event Action<int> OnChanged;
+    public event Action<object> PropertyOnChanged;
 
     private int _amount;
 
     public void Add(int value)
     {
         _amount += value;
-        OnChanged?.Invoke(_amount);
+        PropertyOnChanged?.Invoke(_amount);
     }
 
     public void Reset()
     {
         _amount = 0;
-        OnChanged?.Invoke(_amount);
+        PropertyOnChanged?.Invoke(_amount);
     }
 }

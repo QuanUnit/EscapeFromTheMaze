@@ -11,7 +11,10 @@
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
   </component>
   <component name="HighlightingSettingsPerFile">
+    <setting file="file://$PROJECT_DIR$/Assets/Scripts/Abstract/IPropertyChangeNotifier.cs" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/Library/PackageCache/com.unity.textmeshpro@3.0.6/Scripts/Runtime/TextMeshProUGUI.cs" root0="SKIP_HIGHLIGHTING" />
     <setting file="file://$PROJECT_DIR$/Assets/Scripts/Tools/Trigger.cs" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/Assets/Scripts/UI/PropertyViewer.cs" root0="FORCE_HIGHLIGHTING" />
     <setting file="file://$PROJECT_DIR$/Assets/Scripts/Player/PlayerObserver.cs" root0="FORCE_HIGHLIGHTING" />
   </component>
   <component name="ProjectId" id="1zUKPxZItkVQ0BNAzdXwT0DjuTE" />
@@ -74,6 +77,7 @@
       <workItem from="1634480105889" duration="193000" />
       <workItem from="1634499277421" duration="401000" />
       <workItem from="1634538814263" duration="6877000" />
+      <workItem from="1634648605456" duration="9068000" />
     </task>
     <servers />
   </component>

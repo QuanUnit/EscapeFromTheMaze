@@ -5,7 +5,7 @@ using UnityEngine;
 public class PlayerObserver : MonoBehaviour
 {
     [SerializeField] private PlayerController _playerPrefab;
-    [SerializeField] private List<WalletViewer> _walletViewers;
+    [SerializeField] private List<PropertyViewer> _walletViewers;
 
     private Wallet _wallet;
     private PlayerController _activePlayer;

@@ -10,6 +10,7 @@ public class GameManager : Singleton<GameManager>
 
     [SerializeField] private MazeGenerator _generator;
     [SerializeField] private PlayerObserver _playerObserver;
+    [SerializeField] private Timer _timer;
     
     private void Start()
     {
@@ -23,6 +24,8 @@ public class GameManager : Singleton<GameManager>
 
         Vector3 spawnPosition = maze.StartCell.Position;
         _playerObserver.SpawnPlayer(spawnPosition);
+
+        _timer.Launch();
     }
 
     public void ExitApplication()
@@ -30,13 +33,13 @@ public class GameManager : Singleton<GameManager>
         Application.Quit();
     }
 
-    private void WinGame()
+    public void WinGame()
     {
         _playerObserver.DeletePlayer();
         OnGameWon?.Invoke();
     }
 
-    private void LoseGame()
+    public void LoseGame()
     {
         _playerObserver.DeletePlayer();
         OnGameLost?.Invoke();
