@@ -36,12 +36,14 @@ public class GameManager : Singleton<GameManager>
     public void WinGame()
     {
         _playerObserver.DeletePlayer();
+        _timer.Stop();
         OnGameWon?.Invoke();
     }
 
     public void LoseGame()
     {
         _playerObserver.DeletePlayer();
+        _timer.Stop();
         OnGameLost?.Invoke();
     }
 }

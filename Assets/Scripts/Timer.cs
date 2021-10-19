@@ -43,8 +43,6 @@ public class Timer : MonoBehaviour, IPropertyChangeNotifier
         if(_timerRuntime != null) StopCoroutine(_timerRuntime);
         _timerRuntime = null;
         _seconds = _startTime;
-        FinishTimer?.Invoke();
-
     }
 
     private IEnumerator TimerTick()
@@ -58,6 +56,7 @@ public class Timer : MonoBehaviour, IPropertyChangeNotifier
             {
                 _seconds = 0;
                 PropertyOnChanged?.Invoke(Time);
+                FinishTimer?.Invoke();
                 Stop();
                 break;
             }

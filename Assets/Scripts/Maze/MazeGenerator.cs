@@ -131,16 +131,16 @@ public sealed class MazeGenerator : MonoBehaviour
 
         return grid;
 
-        void ConnectNeighboringCells(MazeCell[,] grid)
+        void ConnectNeighboringCells(MazeCell[,] cells)
         {
-            for (int i = 0; i < grid.GetLength(0); i++)
+            for (int i = 0; i < cells.GetLength(0); i++)
             {
-                for (int j = 0; j < grid.GetLength(1); j++)
+                for (int j = 0; j < cells.GetLength(1); j++)
                 {
-                    List<MazeCell> neighboringCells = grid.GetNeighbours(i, j);
+                    List<MazeCell> neighboringCells = cells.GetNeighbours(i, j);
 
                     foreach (var neighbour in neighboringCells)
-                        grid[i, j].AllNeighboringCells.Add(neighbour);
+                        cells[i, j].AllNeighboringCells.Add(neighbour);
                 }
             }
         }
