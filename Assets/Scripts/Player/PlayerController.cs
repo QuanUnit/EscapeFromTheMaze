@@ -17,13 +17,13 @@ public class PlayerController : MonoBehaviour
 
     private void Update()
     {
-        Vector3 acceleration = Input.acceleration;
-        _direction = new Vector2(acceleration.x, acceleration.y);
+        // Vector3 acceleration = Input.acceleration;
+        // _direction = new Vector2(acceleration.x, acceleration.y);
 
-        /*float x = Input.GetAxis("Horizontal");
-        float y = Input.GetAxis("Vertical");
+          float x = Input.GetAxis("Horizontal");
+          float y = Input.GetAxis("Vertical");
 
-        _direction = new Vector2(x, y);*/
+          _direction = new Vector2(x, y);
 
     }
 
