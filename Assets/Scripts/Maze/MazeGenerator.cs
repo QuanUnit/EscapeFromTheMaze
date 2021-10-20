@@ -24,7 +24,8 @@ public sealed class MazeGenerator : MonoBehaviour
 
     private float _wallLength;
     private float _wallOffset;
-
+    private Vector2 _bottomLeftMazeAngle;
+    
     private void Awake()
     {
         Initialize();
@@ -39,6 +40,8 @@ public sealed class MazeGenerator : MonoBehaviour
 
         _wallLength = wallSize.x - wallSize.y;
         _wallOffset = (wallSprite.pivot / wallSpriteSize).x * _wallLength;
+        _bottomLeftMazeAngle = _mazePosition - new Vector2(_mazeSize.x * _wallLength / 2,
+            _mazeSize.y * _wallLength / 2);
     }
 
     public Maze Generate()
@@ -69,17 +72,19 @@ public sealed class MazeGenerator : MonoBehaviour
 
     private void CreateMazeFrame(MazeCell[,] grid)
     {
-        float topMazeBorder = _mazePosition.y + _mazeSize.y * _wallLength;
-        float rightMazeBorder = _mazePosition.x + _mazeSize.x * _wallLength;
+        float topMazeBorder = _bottomLeftMazeAngle.y + _wallLength * _mazeSize.y;
+        float bottomMazeBorder = _bottomLeftMazeAngle.y;
+        float rightMazeBorder = _bottomLeftMazeAngle.x + _wallLength * _mazeSize.x;
+        float leftMazeBorder = _bottomLeftMazeAngle.x;
 
         Quaternion verticalRotation = Quaternion.Euler(0, 0, 90);
         Quaternion horizontalRotation = Quaternion.Euler(0, 0, 0);
 
         for (int i = 0; i < _mazeSize.y; i++)
         {
-            float yPosition = _mazePosition.y + _wallOffset + _wallLength * i;
+            float yPosition = bottomMazeBorder + _wallLength * i + _wallOffset;
 
-            Vector3 leftSidePosition = new Vector3(_mazePosition.x, yPosition);
+            Vector3 leftSidePosition = new Vector3(leftMazeBorder, yPosition);
             Vector3 rightSidePosition = new Vector3(rightMazeBorder, yPosition);
 
             SimpleWall leftSideWall = CreateWall(leftSidePosition, verticalRotation, MazeObjectLocationType.Side, _mazeContainer);
@@ -87,14 +92,13 @@ public sealed class MazeGenerator : MonoBehaviour
 
             grid[i, 0].ContactWalls.Add(leftSideWall);
             grid[i, _mazeSize.x - 1].ContactWalls.Add(rightSideWall);
-
         }
 
         for (int i = 0; i < _mazeSize.x; i++)
         {
-            float xPosition = _mazePosition.x + _wallOffset +_wallLength * i;
+            float xPosition = leftMazeBorder + _wallLength * i + _wallOffset;
 
-            Vector3 bottomSidePosition = new Vector3(xPosition, _mazePosition.y);
+            Vector3 bottomSidePosition = new Vector3(xPosition, bottomMazeBorder);
             Vector3 topSidePosition = new Vector3(xPosition, topMazeBorder);
 
             SimpleWall bottomSideWall = CreateWall(bottomSidePosition, horizontalRotation, MazeObjectLocationType.Side, _mazeContainer);
@@ -102,7 +106,6 @@ public sealed class MazeGenerator : MonoBehaviour
 
             grid[0, i].ContactWalls.Add(bottomSideWall);
             grid[_mazeSize.y - 1, i].ContactWalls.Add(topSideWall);
-
         }
     }
 
@@ -110,7 +113,7 @@ public sealed class MazeGenerator : MonoBehaviour
     {
         MazeCell[,] grid = new MazeCell[_mazeSize.y, _mazeSize.x];
 
-        Vector3 startPosition = new Vector3(_mazePosition.x + _wallLength / 2, _mazePosition.y + _wallLength / 2);
+        Vector3 startPosition = _bottomLeftMazeAngle + new Vector2(_wallOffset, _wallOffset);
 
         for (int i = 0; i < grid.GetLength(0); i++)
         {
