@@ -18,7 +18,6 @@ public sealed class MazeGenerator : MonoBehaviour
 
     [Header("Links")]
     [SerializeField] private Transform _mazeContainer;
-
     [SerializeField] private SimpleWall _simpleWallPrefab;
     [SerializeField] private Trigger _finishTrigger;
 
