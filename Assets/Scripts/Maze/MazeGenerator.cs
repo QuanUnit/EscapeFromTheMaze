@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Data.Common;
@@ -188,9 +189,7 @@ public sealed class MazeGenerator : MonoBehaviour
                 }
 
                 foreach (var neighbour in freeNeighbors)
-                {
-                    if(neighbour.Visited == false) CreateWallBetweenCells(current, neighbour);
-                }
+                    CreateWallBetweenCells(current, neighbour);
 
                 next.Visited = true;
                 current = next;
@@ -226,8 +225,15 @@ public sealed class MazeGenerator : MonoBehaviour
 
     private void CreateWallBetweenCells(MazeCell cell1, MazeCell cell2)
     {
-        Vector3 position = (cell1.Position + cell2.Position) / 2;
+        Vector3 position = Vector3.Lerp(cell1.Position, cell2.Position, 0.5f);
         float angle = Vector3.Angle(Vector3.up, cell2.Position - cell1.Position);
+
+        for(int i = 0; i < Math.Min(cell1.ContactWalls.Count, cell2.ContactWalls.Count); i++)
+        {
+            if(cell1.ContactWalls[i].transform.position == position ||
+               cell2.ContactWalls[i].transform.position == position)
+                return;
+        }
 
         SimpleWall wall = CreateWall(position, Quaternion.Euler(0, 0, angle), MazeObjectLocationType.Inside, _mazeContainer);
 
@@ -245,7 +251,7 @@ public sealed class MazeGenerator : MonoBehaviour
             {
                 cell1.ContactWalls.Remove(wall);
                 cell2.ContactWalls.Remove(wall);
-
+               
                 Destroy(wall.gameObject);
             }
         }
