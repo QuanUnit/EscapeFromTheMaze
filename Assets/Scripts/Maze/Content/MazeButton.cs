@@ -7,6 +7,9 @@ using UnityEngine;
 public class MazeButton : MonoBehaviour
 {
     public event Action OnClick;
+
+    [SerializeField] private int _reward;
+    
     private Trigger _trigger;
     private Animator _animator;
 
@@ -23,10 +26,11 @@ public class MazeButton : MonoBehaviour
 
     private void OnEnterHandler(Collider2D other, Trigger sender)
     {
-        if (other.TryGetComponent<PlayerController>(out var player) == false)
-            return;
-
-        if (_canUse) Use();
+        if(other.TryGetComponent<Wallet>(out var wallet) == true)
+            if(_canUse) wallet.Add(_reward);
+        
+        if (other.TryGetComponent<PlayerController>(out var player) == true)
+            if (_canUse) Use();
     }
 
     private void Use()
