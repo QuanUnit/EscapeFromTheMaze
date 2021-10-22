@@ -9,10 +9,17 @@ public class Trigger : MonoBehaviour
 {
     public GameObject[] ContactsGameObjects => contactsGameObjects.ToArray();
 
+    [Header("Trigger")]
     public UnityEvent<Collider2D, Trigger> OnTriggerEnter;
-    public UnityEvent<Collider2D, Trigger> OnTriggerExit;
     public UnityEvent<Collider2D, Trigger> OnTriggerStay;
+    public UnityEvent<Collider2D, Trigger> OnTriggerExit;
+    
+    [Header("Collision")]
+    public UnityEvent<Collider2D, Trigger> OnCollisionEnter;
+    public UnityEvent<Collider2D, Trigger> OnCollisionStay;
+    public UnityEvent<Collider2D, Trigger> OnCollisionExit;
 
+    
     [SerializeField] private List<GameObject> contactsGameObjects;
 
     Collider2D ownerCollider;
@@ -43,5 +50,29 @@ public class Trigger : MonoBehaviour
             contactsGameObjects.Add(collision.gameObject);
 
         OnTriggerStay?.Invoke(collision, this);
+    }
+
+    private void OnCollisionEnter2D(Collision2D other)
+    {
+        if (contactsGameObjects.Contains(other.gameObject) == false && ownerCollider.attachedRigidbody != other.collider.attachedRigidbody)
+            contactsGameObjects.Add(other.gameObject);
+        
+        OnCollisionEnter?.Invoke(other.collider, this);
+    }
+
+    private void OnCollisionStay2D(Collision2D other)
+    {
+        if (contactsGameObjects.Contains(other.gameObject) == false && ownerCollider.attachedRigidbody != other.collider.attachedRigidbody)
+            contactsGameObjects.Add(other.gameObject);
+        
+        OnCollisionStay?.Invoke(other.collider, this);
+    }
+
+    private void OnCollisionExit2D(Collision2D other)
+    {
+        if (contactsGameObjects.Contains(other.gameObject) == true)
+            contactsGameObjects.Remove(other.gameObject);
+        
+        OnCollisionExit?.Invoke(other.collider, this);
     }
 }
