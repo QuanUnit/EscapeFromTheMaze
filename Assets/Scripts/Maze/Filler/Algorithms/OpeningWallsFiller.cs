@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 
 [CreateAssetMenu]
-public class OpeningWallsFillingAlgorithm : MazeFillingAlgorithm
+public class OpeningWallsFiller : MazeFillingAlgorithm
 {
     [SerializeField] private OpeningWall _openingWallPrefab;
     [SerializeField] private MazeButton _buttonPrefab;

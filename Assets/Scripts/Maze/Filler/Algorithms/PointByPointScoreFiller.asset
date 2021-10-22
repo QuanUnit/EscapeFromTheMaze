@@ -9,7 +9,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 0}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 265b7bea7cbc3504a8eba51e10c51d5d, type: 3}
-  m_Name: New Test
+  m_Script: {fileID: 11500000, guid: 2d5e9f30603364c92a8082a23d53ec90, type: 3}
+  m_Name: PointByPointScoreFiller
   m_EditorClassIdentifier: 
-  test: {fileID: 8357728603135828684, guid: 793cbe1a64b21c1408682b37b18ca5ea, type: 3}
+  _scorePointPrefab: {fileID: 6667073895138812639, guid: 31956313eecb97d42b6bf7403628168f, type: 3}

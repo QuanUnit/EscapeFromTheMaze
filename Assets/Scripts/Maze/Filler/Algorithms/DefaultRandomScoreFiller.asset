@@ -10,7 +10,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 5eea2930879f16348949525fe0bc579e, type: 3}
-  m_Name: ScoreFilling
+  m_Name: DefaultRandomScoreFiller
   m_EditorClassIdentifier: 
   _scorePointPrefab: {fileID: 6667073895138812639, guid: 31956313eecb97d42b6bf7403628168f, type: 3}
   _maxScoreLineLength: 7

@@ -10,8 +10,8 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 74aafd062504a05409593516dcd54c7b, type: 3}
-  m_Name: OpeningWallsAndButtons
+  m_Name: DefaultOpeningWallsFiller_1
   m_EditorClassIdentifier: 
   _openingWallPrefab: {fileID: -6498693340431965392, guid: c0bb1f5eaac58e44884245fdd77dac0c, type: 3}
   _buttonPrefab: {fileID: 4648250086009665232, guid: 370e208fb099c4834a27c8577774aa8d, type: 3}
-  _wallsCountProportion: 0.3
+  _wallsCountProportion: 0.05
