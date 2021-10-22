@@ -298,7 +298,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _minPitch: 1
-  _maxPitch: 1.5
+  _maxPitch: 2
 --- !u!1 &7560889373758782363
 GameObject:
   m_ObjectHideFlags: 0

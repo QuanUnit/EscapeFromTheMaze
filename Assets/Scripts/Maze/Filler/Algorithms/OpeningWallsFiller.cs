@@ -53,8 +53,8 @@ public class OpeningWallsFiller : MazeFillingAlgorithm
 
             secondaryBranches.Remove(branch);
 
-            button.OnClick += wall.Open;
-            wall.OnOpened += delegate { button.OnClick -= wall.Open; };
+            button.OnClick.AddListener(wall.Open);
+            wall.OnOpened += delegate { button.OnClick.RemoveListener(wall.Open); };
         }
     }
 

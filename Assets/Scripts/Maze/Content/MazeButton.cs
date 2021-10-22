@@ -2,11 +2,12 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.Events;
 
 [RequireComponent(typeof(Trigger), typeof(Animator))]
 public class MazeButton : MonoBehaviour
 {
-    public event Action OnClick;
+    public UnityEvent OnClick;
 
     [SerializeField] private int _reward;
     
@@ -26,11 +27,15 @@ public class MazeButton : MonoBehaviour
 
     private void OnEnterHandler(Collider2D other, Trigger sender)
     {
-        if(other.TryGetComponent<Wallet>(out var wallet) == true)
-            if(_canUse) wallet.Add(_reward);
-        
-        if (other.TryGetComponent<PlayerController>(out var player) == true)
-            if (_canUse) Use();
+        if (other.TryGetComponent<PlayerController>(out var player) == true &&
+            other.TryGetComponent<Wallet>(out var wallet) == true)
+        {
+            if (_canUse)
+            {
+                Use();
+                wallet.Add(_reward);
+            }
+        }
     }
 
     private void Use()
