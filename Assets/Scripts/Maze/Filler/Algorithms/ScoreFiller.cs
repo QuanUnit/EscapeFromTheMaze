@@ -4,7 +4,7 @@ using UnityEngine;
 
 public abstract class ScoreFiller: MazeFillingAlgorithm
 {
-    [SerializeField] protected ScorePoint _scorePointPrefab;
+    [SerializeField] protected GameObject _scorePointPrefab;
     
     protected void CreateScorePoints(List<MazeCell> branch, int startIndex, int length, Transform container)
     {

@@ -12,4 +12,4 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 2d5e9f30603364c92a8082a23d53ec90, type: 3}
   m_Name: PointByPointScoreFiller
   m_EditorClassIdentifier: 
-  _scorePointPrefab: {fileID: 6667073895138812639, guid: 31956313eecb97d42b6bf7403628168f, type: 3}
+  _scorePointPrefab: {fileID: 7560889373758782363, guid: 31956313eecb97d42b6bf7403628168f, type: 3}
