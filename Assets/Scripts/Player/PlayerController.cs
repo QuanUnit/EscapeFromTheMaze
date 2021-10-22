@@ -24,7 +24,6 @@ public class PlayerController : MonoBehaviour
           float y = Input.GetAxis("Vertical");
 
           _direction = new Vector2(x, y);
-
     }
 
     private void FixedUpdate()

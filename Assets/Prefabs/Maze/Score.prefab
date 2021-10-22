@@ -299,6 +299,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   _minPitch: 1
   _maxPitch: 2
+  _destroyAfterClip: 1
 --- !u!1 &7560889373758782363
 GameObject:
   m_ObjectHideFlags: 0

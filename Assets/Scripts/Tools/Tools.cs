@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -43,5 +44,16 @@ public static class Tools
         }
 
         throw new System.IndexOutOfRangeException();
+    }
+
+    public static void Invoke(MonoBehaviour owner, float delay, Action callBack)
+    {
+        owner.StartCoroutine(DelayProcess());
+        
+        IEnumerator DelayProcess()
+        {
+            yield return new WaitForSeconds(delay);
+            callBack?.Invoke();
+        }
     }
 }
