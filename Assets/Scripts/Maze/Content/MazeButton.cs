@@ -15,8 +15,8 @@ public class MazeButton : MonoBehaviour
 
     private bool _canUse = true;
         
-    private void OnEnable() => _trigger.OnTriggerEnter += OnEnterHandler;
-    private void OnDisable() => _trigger.OnTriggerEnter -= OnEnterHandler;
+    private void OnEnable() => _trigger.OnTriggerEnter.AddListener(OnEnterHandler);
+    private void OnDisable() => _trigger.OnTriggerEnter.RemoveListener(OnEnterHandler);
 
     private void Awake()
     {

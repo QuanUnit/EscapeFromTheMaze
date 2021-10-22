@@ -20,7 +20,7 @@ public class GameManager : Singleton<GameManager>
     public void RestartGame()
     {
         var maze = _generator.Generate();
-        maze.ExitTrigger.OnTriggerEnter += delegate { WinGame(); };
+        maze.ExitTrigger.OnTriggerEnter.AddListener(delegate { WinGame(); });
 
         Vector3 spawnPosition = maze.StartCell.Position;
         _playerObserver.SpawnPlayer(spawnPosition);

@@ -2,15 +2,16 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.Events;
 
 [RequireComponent(typeof(Collider2D))]
 public class Trigger : MonoBehaviour
 {
     public GameObject[] ContactsGameObjects => contactsGameObjects.ToArray();
 
-    public event Action<Collider2D, Trigger> OnTriggerEnter;
-    public event Action<Collider2D, Trigger> OnTriggerExit;
-    public event Action<Collider2D, Trigger> OnTriggerStay;
+    public UnityEvent<Collider2D, Trigger> OnTriggerEnter;
+    public UnityEvent<Collider2D, Trigger> OnTriggerExit;
+    public UnityEvent<Collider2D, Trigger> OnTriggerStay;
 
     [SerializeField] private List<GameObject> contactsGameObjects;
 

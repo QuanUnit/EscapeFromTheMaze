@@ -18,7 +18,6 @@ public class OpeningWall : SimpleWall
     public void Open()
     {
         _animator.SetTrigger("Open");
-        //gameObject.SetActive(false);
         OnOpened?.Invoke();
     }
 }
