@@ -9,7 +9,8 @@ public static class Tools
     {
         List<T> output = new List<T>();
 
-        Vector2Int[] directions = { new Vector2Int(1, 0), new Vector2Int(0, 1), new Vector2Int(-1, 0), new Vector2Int(0, -1) };
+        Vector2Int[] directions = { new Vector2Int(1, 0), new Vector2Int(0, 1), 
+                                    new Vector2Int(-1, 0), new Vector2Int(0, -1) };
 
         foreach (var direction in directions)
         {

@@ -9,6 +9,7 @@ public class MazeCell
     public uint DistanceToStart { get; set; }
     public Vector3 Position { get; private set; }
     public MazeObjectLocationType LocationType { get; private set; }
+    public MonoBehaviour StoredObject { get; set; }
 
     public MazeCell(Vector3 position, MazeObjectLocationType locationType = MazeObjectLocationType.Inside, bool visited = false)
     {

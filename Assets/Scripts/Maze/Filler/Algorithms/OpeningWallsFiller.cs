@@ -77,6 +77,7 @@ public class OpeningWallsFiller : MazeFillingAlgorithm
             Quaternion.Euler(0, 0, connectedWall.transform.position.x > cell.Position.x ? angle : -angle), container);
 
         MazeButton button = buttonGO.GetComponent<MazeButton>();
+        cell.StoredObject = button;
 
         return button;
     }
