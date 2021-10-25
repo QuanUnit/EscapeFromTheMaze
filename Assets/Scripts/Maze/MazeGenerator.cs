@@ -50,10 +50,9 @@ public sealed class MazeGenerator : MonoBehaviour
 
         MazeCell[,] mazeCellsGrid = GenerateCellsGrid();
         MazeCell startCell = mazeCellsGrid[Random.Range(0, _mazeSize.y), Random.Range(0, _mazeSize.x)];
-        MazeCell lastCell;
 
         CreateMazeFrame(mazeCellsGrid);
-        BypassingMazeGeneration(startCell, out lastCell, out var branches);
+        BypassingMazeGeneration(startCell, out var lastCell, out var branches);
 
         Trigger exitTrigger = CreateMazeExit(lastCell);
 
