@@ -13,16 +13,10 @@ public class OpeningWallsFiller : MazeFillingAlgorithm
 
     public override void FillMaze(Maze maze)
     {
-        Branch<MazeCell> mainBranch = default;
-        List<Branch<MazeCell>> secondaryBranches = new List<Branch<MazeCell>>();
+        Branch<MazeCell> mainBranch = maze.MainBranch;
+        List<Branch<MazeCell>> secondaryBranches = new List<Branch<MazeCell>>(maze.SecondaryBranches);
         
         List<Vector3> occupiedWallsPositions = new List<Vector3>();
-
-        foreach (var branch in maze.Branches)
-        {
-            if (branch.Type == BranchType.Main) mainBranch = branch;
-            else secondaryBranches.Add(branch);
-        }
 
         for (int i = 0; i < secondaryBranches.Count * _wallsCountProportion; i++)
         {
@@ -80,7 +74,7 @@ public class OpeningWallsFiller : MazeFillingAlgorithm
             Quaternion.Euler(0, 0, connectedWall.transform.position.x > cell.Position.x ? angle : -angle), container);
 
         MazeButton button = buttonGO.GetComponent<MazeButton>();
-        cell.StoredObject = button;
+        cell.StoredObjects.Add(button);
 
         return button;
     }

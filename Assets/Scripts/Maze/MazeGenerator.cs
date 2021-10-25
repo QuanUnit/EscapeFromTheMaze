@@ -50,9 +50,10 @@ public sealed class MazeGenerator : MonoBehaviour
 
         MazeCell[,] mazeCellsGrid = GenerateCellsGrid();
         MazeCell startCell = mazeCellsGrid[Random.Range(0, _mazeSize.y), Random.Range(0, _mazeSize.x)];
+        MazeCell lastCell;
 
         CreateMazeFrame(mazeCellsGrid);
-        BypassingMazeGeneration(startCell, out var lastCell, out var branches);
+        BypassingMazeGeneration(startCell, out lastCell, out var branches);
 
         Trigger exitTrigger = CreateMazeExit(lastCell);
 
@@ -196,6 +197,7 @@ public sealed class MazeGenerator : MonoBehaviour
                     CreateWallBetweenCells(current, neighbour);
 
                 next.Visited = true;
+                current.Connect(next);
                 current = next;
             }
             else
@@ -324,19 +326,40 @@ public class Maze
     public MazeCell StartCell { get; private set; }
     public MazeCell LastCell { get; private set; }
     public MazeCell[,] MazeGrid { get; private set; }
+    
     public List<Branch<MazeCell>> Branches { get; private set; }
+    public List<Branch<MazeCell>> SecondaryBranches => _secondaryBranches;
+    public Branch<MazeCell> MainBranch => _mainBranch;
     public Trigger ExitTrigger { get; private set; }
     public Transform Container { get; private set; }
-    
+
+    private List<Branch<MazeCell>> _secondaryBranches;
+    private Branch<MazeCell> _mainBranch;
+
     public Maze(MazeCell startCell, MazeCell lastCell, MazeCell[,] grid, 
         Trigger exitTrigger, Transform container, List<Branch<MazeCell>> branches)
     {
+        DecomposeBranches(branches, out _mainBranch, out _secondaryBranches);
+
         Branches = branches;
         Container = container;  
         LastCell = lastCell;
         ExitTrigger = exitTrigger;
         MazeGrid = grid;
         StartCell = startCell;
+    }
+
+    private void DecomposeBranches(List<Branch<MazeCell>> branches,
+        out Branch<MazeCell> mainBranch, out List<Branch<MazeCell>> secondaryBranches)
+    {
+        secondaryBranches = new List<Branch<MazeCell>>();
+        mainBranch = null;
+        
+        foreach (var branch in branches)
+        {
+            if (branch.Type == BranchType.Main) mainBranch = branch;
+            else secondaryBranches.Add(branch);
+        }
     }
     
 }

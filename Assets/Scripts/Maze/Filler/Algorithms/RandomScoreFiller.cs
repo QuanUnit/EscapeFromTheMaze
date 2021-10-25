@@ -9,10 +9,8 @@ public class RandomScoreFiller : ScoreFiller
 
     public override void FillMaze(Maze maze)
     {
-        foreach (var branch in maze.Branches)
+        foreach (var branch in maze.SecondaryBranches)
         {
-            if (branch.Type == BranchType.Main) continue;
-
             int start = Random.Range(0, branch.Path.Count);
             int length = Mathf.Min(Random.Range(1, _maxScoreLineLength + 1), branch.Path.Count - start);
 

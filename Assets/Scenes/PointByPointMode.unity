@@ -1007,7 +1007,7 @@ MonoBehaviour:
           m_StringArgument: 
           m_BoolArgument: 0
         m_CallState: 2
-  _startTime: 180
+  _startTime: 5
   _reverse: 1
 --- !u!1 &2140636881 stripped
 GameObject:

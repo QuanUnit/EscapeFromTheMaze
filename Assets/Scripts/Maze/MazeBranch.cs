@@ -6,8 +6,8 @@ using UnityEngine;
 public class Branch<T>
 {
     public List<T> Path { get; private set; }
-    public Branch<T> SourceBranch { get; private set; }
-    public T Source { get; private set; }
+    public Branch<T> SourceBranch { get; private set; } // TODO
+    public T Source { get; private set; } // TODO
     public BranchType Type { get; private set; }
     
 
