@@ -149,12 +149,12 @@ public sealed class MazeGenerator : MonoBehaviour
         }
     }
 
-    private void BypassingMazeGeneration(MazeCell startCell, out MazeCell lastCell, out Dictionary<List<MazeCell>, Maze.BranchType> branches)
+    private void BypassingMazeGeneration(MazeCell startCell, out MazeCell lastCell, out List<Branch<MazeCell>> branches)
     {
-        branches = new Dictionary<List<MazeCell>, Maze.BranchType>();
+        branches = new List<Branch<MazeCell>>();
 
-        List<MazeCell> mainBranch = new List<MazeCell>();
-        List<MazeCell> secondaryBranch = new List<MazeCell>();
+        List<MazeCell> mainBranchPath = new List<MazeCell>();
+        List<MazeCell> secondaryBranchPath = new List<MazeCell>();
         
         Stack<MazeCell> path = new Stack<MazeCell>();
         
@@ -179,13 +179,18 @@ public sealed class MazeGenerator : MonoBehaviour
                      current.DistanceToStart > lastCell.DistanceToStart)
                 {
                     lastCell = current;
-                    mainBranch = new List<MazeCell>(path);
+                    mainBranchPath = new List<MazeCell>(path);
                 }
 
-                if (secondaryBranch.Count != 0)
+                if (secondaryBranchPath.Count != 0)
                 {
-                    branches.Add(new List<MazeCell>(secondaryBranch), Maze.BranchType.Secondary);
-                    secondaryBranch.Clear();
+                    secondaryBranchPath.Reverse();
+                    
+                    Branch<MazeCell> secondaryBranch =
+                        new Branch<MazeCell>(new List<MazeCell>(secondaryBranchPath), BranchType.Secondary);
+                    
+                    branches.Add(secondaryBranch);
+                    secondaryBranchPath.Clear();
                 }
 
                 foreach (var neighbour in freeNeighbors)
@@ -196,13 +201,14 @@ public sealed class MazeGenerator : MonoBehaviour
             }
             else
             {
-                secondaryBranch.Add(current);
+                secondaryBranchPath.Add(current);
                 current = path.Pop();
             }
         }
 
-        mainBranch.Reverse();
-        branches.Add(mainBranch, Maze.BranchType.Main);
+        mainBranchPath.Reverse();
+        Branch<MazeCell> mainBranch = new Branch<MazeCell>(new List<MazeCell>(mainBranchPath), BranchType.Main);
+        branches.Add(mainBranch);
         RemoveBranchesCollisions(mainBranch, branches);
     }
 
@@ -259,18 +265,18 @@ public sealed class MazeGenerator : MonoBehaviour
         return false;
     }
 
-    private void RemoveBranchesCollisions(List<MazeCell> mask, Dictionary<List<MazeCell>, Maze.BranchType> mazeBranches)
+    private void RemoveBranchesCollisions(Branch<MazeCell> mask, List<Branch<MazeCell>> mazeBranches)
     {
         foreach (var branch in mazeBranches)
         {
-            if(branch.Value == Maze.BranchType.Main)
+            if(branch.Type == BranchType.Main)
                 continue;
 
-            for (int i = 0; i < branch.Key.Count; i++)
+            for (int i = 0; i < branch.Path.Count; i++)
             {
-                if (mask.Contains(branch.Key[i]))
+                if (mask.Path.Contains(branch.Path[i]))
                 {
-                    branch.Key.RemoveAt(i);
+                    branch.Path.RemoveAt(i);
                     i--;
                 }
             }
@@ -319,12 +325,12 @@ public class Maze
     public MazeCell StartCell { get; private set; }
     public MazeCell LastCell { get; private set; }
     public MazeCell[,] MazeGrid { get; private set; }
-    public Dictionary<List<MazeCell>, BranchType> Branches { get; private set; }
+    public List<Branch<MazeCell>> Branches { get; private set; }
     public Trigger ExitTrigger { get; private set; }
     public Transform Container { get; private set; }
     
     public Maze(MazeCell startCell, MazeCell lastCell, MazeCell[,] grid, 
-        Trigger exitTrigger, Transform container, Dictionary<List<MazeCell>, BranchType> branches)
+        Trigger exitTrigger, Transform container, List<Branch<MazeCell>> branches)
     {
         Branches = branches;
         Container = container;  
@@ -333,10 +339,5 @@ public class Maze
         MazeGrid = grid;
         StartCell = startCell;
     }
-
-    public enum BranchType
-    {
-        Main,
-        Secondary,
-    }
+    
 }

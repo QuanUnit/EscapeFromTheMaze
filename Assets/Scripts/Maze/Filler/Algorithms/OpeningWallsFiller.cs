@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using UnityEditor.Macros;
 using UnityEngine;
 
 [CreateAssetMenu]
@@ -12,37 +13,39 @@ public class OpeningWallsFiller : MazeFillingAlgorithm
 
     public override void FillMaze(Maze maze)
     {
-        List<MazeCell> mainBranch = new List<MazeCell>();
-        List<List<MazeCell>> secondaryBranches = new List<List<MazeCell>>();
+        Branch<MazeCell> mainBranch = default;
+        List<Branch<MazeCell>> secondaryBranches = new List<Branch<MazeCell>>();
+        
         List<Vector3> occupiedWallsPositions = new List<Vector3>();
 
         foreach (var branch in maze.Branches)
         {
-            if (branch.Value == Maze.BranchType.Main) mainBranch = branch.Key;
-            else secondaryBranches.Add(branch.Key);
+            if (branch.Type == BranchType.Main) mainBranch = branch;
+            else secondaryBranches.Add(branch);
         }
 
         for (int i = 0; i < secondaryBranches.Count * _wallsCountProportion; i++)
         {
-            List<MazeCell> branch = secondaryBranches[Random.Range(0, secondaryBranches.Count)];
+            Branch<MazeCell> branch = secondaryBranches[Random.Range(0, secondaryBranches.Count)];
+            MazeCell cellForButton = branch.Path[branch.Path.Count - 1];
 
-            MazeCell cellForButton = branch[0];
-
-            int cell1Index = (int)branch[branch.Count - 1].DistanceToStart;
+            int cell1Index = (int)branch.Path[0].DistanceToStart;
             int cell2Index = cell1Index + 1;
 
-            if(cell2Index >= mainBranch.Count)
+            if(cell2Index >= mainBranch.Path.Count)
             {
                 secondaryBranches.Remove(branch);
+                i--;
                 continue;
             }    
 
-            MazeCell cellForWall1 = mainBranch[cell1Index];
-            MazeCell cellForWall2 = mainBranch[cell2Index];
+            MazeCell cellForWall1 = mainBranch.Path[cell1Index];
+            MazeCell cellForWall2 = mainBranch.Path[cell2Index];
 
             if(occupiedWallsPositions.Contains((cellForWall1.Position + cellForWall2.Position) / 2))
             {
                 secondaryBranches.Remove(branch);
+                i--;
                 continue;
             }
 

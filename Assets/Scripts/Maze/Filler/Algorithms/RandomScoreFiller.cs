@@ -11,12 +11,12 @@ public class RandomScoreFiller : ScoreFiller
     {
         foreach (var branch in maze.Branches)
         {
-            if (branch.Value == Maze.BranchType.Main) continue;
+            if (branch.Type == BranchType.Main) continue;
 
-            int start = Random.Range(0, branch.Key.Count);
-            int length = Mathf.Min(Random.Range(1, _maxScoreLineLength + 1), branch.Key.Count - start);
+            int start = Random.Range(0, branch.Path.Count);
+            int length = Mathf.Min(Random.Range(1, _maxScoreLineLength + 1), branch.Path.Count - start);
 
-            CreateScorePoints(branch.Key, start, length, maze.Container);
+            CreateScorePoints(branch.Path, start, length, maze.Container);
         }
     }
 }
