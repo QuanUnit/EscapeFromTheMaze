@@ -1,49 +1,53 @@
-using System.Collections;
-using System.Collections.Generic;
+using MazeGame.Maze;
+using MazeGame.Player;
+using MazeGame.Tools;
 using UnityEngine;
 using UnityEngine.Events;
 
-public class GameManager : Singleton<GameManager>
+namespace MazeGame
 {
-    public UnityEvent OnGameWon;
-    public UnityEvent OnGameLost;
-
-    [SerializeField] private MazeGenerator _generator;
-    [SerializeField] private PlayerObserver _playerObserver;
-    [SerializeField] private Timer _timer;
-    
-    private void Start()
+    public class GameManager : Singleton<GameManager>
     {
-        RestartGame();
-    }
-    
-    public void RestartGame()
-    {
-        var maze = _generator.Generate();
-        maze.ExitTrigger.OnTriggerEnter.AddListener(delegate { WinGame(); });
+        public UnityEvent OnGameWon;
+        public UnityEvent OnGameLost;
 
-        Vector3 spawnPosition = maze.StartCell.Position;
-        _playerObserver.SpawnPlayer(spawnPosition);
+        [SerializeField] private MazeGenerator _generator;
+        [SerializeField] private PlayerObserver _playerObserver;
+        [SerializeField] private Timer _timer;
 
-        _timer.Launch();
-    }
+        private void Start()
+        {
+            RestartGame();
+        }
 
-    public void ExitApplication()
-    {
-        Application.Quit();
-    }
+        public void RestartGame()
+        {
+            var maze = _generator.Generate();
+            maze.ExitTrigger.OnTriggerEnter.AddListener(delegate { WinGame(); });
 
-    public void WinGame()
-    {
-        _playerObserver.DeletePlayer();
-        _timer.Stop();
-        OnGameWon?.Invoke();
-    }
+            Vector3 spawnPosition = maze.StartCell.Position;
+            _playerObserver.SpawnPlayer(spawnPosition);
 
-    public void LoseGame()
-    {
-        _playerObserver.DeletePlayer();
-        _timer.Stop();
-        OnGameLost?.Invoke();
+            _timer.Launch();
+        }
+
+        public void ExitApplication()
+        {
+            Application.Quit();
+        }
+
+        public void WinGame()
+        {
+            _playerObserver.DeletePlayer();
+            _timer.Stop();
+            OnGameWon?.Invoke();
+        }
+
+        public void LoseGame()
+        {
+            _playerObserver.DeletePlayer();
+            _timer.Stop();
+            OnGameLost?.Invoke();
+        }
     }
 }

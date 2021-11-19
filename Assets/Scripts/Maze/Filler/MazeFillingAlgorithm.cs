@@ -1,8 +1,9 @@
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 
-public abstract class MazeFillingAlgorithm : ScriptableObject
+namespace MazeGame.Maze.Algorithms
 {
-    public abstract void FillMaze(Maze maze);
+    public abstract class MazeFillingAlgorithm : ScriptableObject
+    {
+        public abstract void FillMaze(Maze maze);
+    }
 }

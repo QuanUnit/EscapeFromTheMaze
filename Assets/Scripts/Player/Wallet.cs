@@ -1,23 +1,25 @@
 using System;
-using System.Collections;
-using System.Collections.Generic;
+using MazeGame.Abstract;
 using UnityEngine;
 
-public class Wallet : MonoBehaviour, IPropertyChangeNotifier
+namespace MazeGame.Player
 {
-    public event Action<object> PropertyOnChanged;
-
-    private int _amount;
-
-    public void Add(int value)
+    public class Wallet : MonoBehaviour, IPropertyChangeNotifier
     {
-        _amount += value;
-        PropertyOnChanged?.Invoke(_amount);
-    }
+        public event Action<object> PropertyOnChanged;
 
-    public void Reset()
-    {
-        _amount = 0;
-        PropertyOnChanged?.Invoke(_amount);
+        private int _amount;
+
+        public void Add(int value)
+        {
+            _amount += value;
+            PropertyOnChanged?.Invoke(_amount);
+        }
+
+        public void Reset()
+        {
+            _amount = 0;
+            PropertyOnChanged?.Invoke(_amount);
+        }
     }
 }

@@ -1,23 +1,24 @@
 using System;
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 
-[RequireComponent(typeof(Animator))]
-public class OpeningWall : SimpleWall
+namespace MazeGame.Maze.Environment
 {
-    public event Action OnOpened;
-
-    private Animator _animator;
-
-    private void Awake()
+    [RequireComponent(typeof(Animator))]
+    public class OpeningWall : SimpleWall
     {
-        _animator = GetComponent<Animator>();
-    }
+        public event Action OnOpened;
 
-    public void Open()
-    {
-        _animator.SetTrigger("Open");
-        OnOpened?.Invoke();
+        private Animator _animator;
+
+        private void Awake()
+        {
+            _animator = GetComponent<Animator>();
+        }
+
+        public void Open()
+        {
+            _animator.SetTrigger("Open");
+            OnOpened?.Invoke();
+        }
     }
 }

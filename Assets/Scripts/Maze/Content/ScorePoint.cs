@@ -1,30 +1,32 @@
-using System;
-using System.Collections;
-using System.Collections.Generic;
-using TMPro.EditorUtilities;
+using MazeGame.Player;
+using MazeGame.Tools;
 using UnityEngine;
 
-[RequireComponent(typeof(Trigger))]
-public class ScorePoint : MonoBehaviour
+namespace MazeGame.Maze.Environment
 {
-    [SerializeField] int _value;
-
-    private Trigger _trigger;
-
-    private void Awake()
+    [RequireComponent(typeof(Trigger))]
+    public class ScorePoint : MonoBehaviour
     {
-        _trigger = GetComponent<Trigger>();
-    }
+        [SerializeField] int _value;
 
-    private void OnEnable() => _trigger.OnTriggerEnter.AddListener(OnEnterHandler);
-    private void OnDisable() => _trigger.OnTriggerEnter.RemoveListener(OnEnterHandler);
+        private Trigger _trigger;
 
-    private void OnEnterHandler(Collider2D other, Trigger sender)
-    {
-        if (other.TryGetComponent<Wallet>(out var wallet) == false)
-            return;
+        private void Awake()
+        {
+            _trigger = GetComponent<Trigger>();
+        }
 
-        wallet.Add(_value);
-        Destroy(gameObject);
+        private void OnEnable() => _trigger.OnTriggerEnter.AddListener(OnEnterHandler);
+        private void OnDisable() => _trigger.OnTriggerEnter.RemoveListener(OnEnterHandler);
+
+        private void OnEnterHandler(Collider2D other, Trigger sender)
+        {
+            if (other.TryGetComponent<Wallet>(out var wallet) == false)
+                return;
+
+            wallet.Add(_value);
+            Destroy(gameObject);
+        }
     }
 }
+

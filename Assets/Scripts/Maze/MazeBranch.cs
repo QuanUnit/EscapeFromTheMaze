@@ -1,27 +1,27 @@
-﻿using System.Collections;
-using System.Collections.Generic;
-using UnityEditor.Macros;
-using UnityEngine;
+﻿using System.Collections.Generic;
 
-public class Branch<T>
+namespace MazeGame.Maze
 {
-    public List<T> Path { get; private set; }
-    public Branch<T> SourceBranch { get; private set; } // TODO
-    public T Source { get; private set; } // TODO
-    public BranchType Type { get; private set; }
-    
-
-    public Branch(List<T> path, BranchType type, Branch<T> sourceBranch = default, T source = default)
+    public class Branch<T>
     {
-        Path = path;
-        SourceBranch = sourceBranch;
-        Source = source;
-        Type = type;
-    }
-}
+        public List<T> Path { get; private set; }
+        public Branch<T> SourceBranch { get; private set; } // TODO
+        public T Source { get; private set; } // TODO
+        public BranchType Type { get; private set; }
 
-public enum BranchType
-{
-    Main,
-    Secondary,
+
+        public Branch(List<T> path, BranchType type, Branch<T> sourceBranch = default, T source = default)
+        {
+            Path = path;
+            SourceBranch = sourceBranch;
+            Source = source;
+            Type = type;
+        }
+    }
+
+    public enum BranchType
+    {
+        Main,
+        Secondary,
+    }
 }

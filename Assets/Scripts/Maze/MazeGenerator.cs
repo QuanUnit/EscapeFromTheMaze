@@ -1,365 +1,364 @@
 using System;
-using System.Collections;
 using System.Collections.Generic;
-using System.Data.Common;
-using TMPro;
-using Unity.Mathematics;
+using MazeGame.Maze.Algorithms;
+using MazeGame.Maze.Environment;
+using MazeGame.Tools;
 using UnityEngine;
-using UnityEngine.UI;
 using Random = UnityEngine.Random;
 
-public sealed class MazeGenerator : MonoBehaviour
+namespace MazeGame.Maze
 {
-    [Header("Maze settings")]
-
-    [SerializeField] private MazeFiller _filler;
-
-    [SerializeField] private Vector2Int _mazeSize;
-    [SerializeField] private Vector2 _mazePosition;
-
-    [Header("Links")]
-    [SerializeField] private Transform _mazeContainer;
-    [SerializeField] private SimpleWall _simpleWallPrefab;
-    [SerializeField] private Trigger _finishTrigger;
-
-    private float _wallLength;
-    private float _wallOffset;
-    private Vector2 _bottomLeftMazeAngle;
-    
-    private void Awake()
+    public sealed class MazeGenerator : MonoBehaviour
     {
-        Initialize();
-    }
+        [Header("Maze settings")]
+        [SerializeField] private MazeFiller _filler;
 
-    private void Initialize()
-    {
-        Sprite wallSprite = _simpleWallPrefab.GetComponent<SpriteRenderer>().sprite;
+        [SerializeField] private Vector2Int _mazeSize;
+        [SerializeField] private Vector2 _mazePosition;
 
-        Vector2 wallSpriteSize = new Vector2(wallSprite.texture.width, wallSprite.texture.height);
-        Vector2 wallSize = (wallSpriteSize / wallSprite.pixelsPerUnit * _simpleWallPrefab.transform.localScale);
+        [Header("Links")]
+        [SerializeField] private Transform _mazeContainer;
+        [SerializeField] private SimpleWall _simpleWallPrefab;
+        [SerializeField] private Trigger _finishTrigger;
 
-        _wallLength = wallSize.x - wallSize.y;
-        _wallOffset = (wallSprite.pivot / wallSpriteSize).x * _wallLength;
-        _bottomLeftMazeAngle = _mazePosition - new Vector2(_mazeSize.x * _wallLength / 2,
-            _mazeSize.y * _wallLength / 2);
-    }
+        private float _wallLength;
+        private float _wallOffset;
+        private Vector2 _bottomLeftMazeAngle;
 
-    public Maze Generate()
-    {
-        ClearContainer();
-
-        MazeCell[,] mazeCellsGrid = GenerateCellsGrid();
-        MazeCell startCell = mazeCellsGrid[Random.Range(0, _mazeSize.y), Random.Range(0, _mazeSize.x)];
-        MazeCell lastCell;
-
-        CreateMazeFrame(mazeCellsGrid);
-        BypassingMazeGeneration(startCell, out lastCell, out var branches);
-
-        Trigger exitTrigger = CreateMazeExit(lastCell);
-
-        Maze maze = new Maze(startCell, lastCell, mazeCellsGrid, exitTrigger, _mazeContainer, branches);
-
-        _filler.FillMaze(maze);
-
-        return maze;
-    }
-
-    private void ClearContainer()
-    {
-        foreach (Transform child in _mazeContainer)
-            Destroy(child.gameObject);
-    }
-
-    private void CreateMazeFrame(MazeCell[,] grid)
-    {
-        float topMazeBorder = _bottomLeftMazeAngle.y + _wallLength * _mazeSize.y;
-        float bottomMazeBorder = _bottomLeftMazeAngle.y;
-        float rightMazeBorder = _bottomLeftMazeAngle.x + _wallLength * _mazeSize.x;
-        float leftMazeBorder = _bottomLeftMazeAngle.x;
-
-        Quaternion verticalRotation = Quaternion.Euler(0, 0, 90);
-        Quaternion horizontalRotation = Quaternion.Euler(0, 0, 0);
-
-        for (int i = 0; i < _mazeSize.y; i++)
+        private void Awake()
         {
-            float yPosition = bottomMazeBorder + _wallLength * i + _wallOffset;
-
-            Vector3 leftSidePosition = new Vector3(leftMazeBorder, yPosition);
-            Vector3 rightSidePosition = new Vector3(rightMazeBorder, yPosition);
-
-            SimpleWall leftSideWall = CreateWall(leftSidePosition, verticalRotation, MazeObjectLocationType.Side, _mazeContainer);
-            SimpleWall rightSideWall = CreateWall(rightSidePosition, verticalRotation, MazeObjectLocationType.Side, _mazeContainer);
-
-            grid[i, 0].ContactWalls.Add(leftSideWall);
-            grid[i, _mazeSize.x - 1].ContactWalls.Add(rightSideWall);
+            Initialize();
         }
 
-        for (int i = 0; i < _mazeSize.x; i++)
+        private void Initialize()
         {
-            float xPosition = leftMazeBorder + _wallLength * i + _wallOffset;
+            Sprite wallSprite = _simpleWallPrefab.GetComponent<SpriteRenderer>().sprite;
 
-            Vector3 bottomSidePosition = new Vector3(xPosition, bottomMazeBorder);
-            Vector3 topSidePosition = new Vector3(xPosition, topMazeBorder);
+            Vector2 wallSpriteSize = new Vector2(wallSprite.texture.width, wallSprite.texture.height);
+            Vector2 wallSize = (wallSpriteSize / wallSprite.pixelsPerUnit * _simpleWallPrefab.transform.localScale);
 
-            SimpleWall bottomSideWall = CreateWall(bottomSidePosition, horizontalRotation, MazeObjectLocationType.Side, _mazeContainer);
-            SimpleWall topSideWall = CreateWall(topSidePosition, horizontalRotation, MazeObjectLocationType.Side, _mazeContainer);
-
-            grid[0, i].ContactWalls.Add(bottomSideWall);
-            grid[_mazeSize.y - 1, i].ContactWalls.Add(topSideWall);
+            _wallLength = wallSize.x - wallSize.y;
+            _wallOffset = (wallSprite.pivot / wallSpriteSize).x * _wallLength;
+            _bottomLeftMazeAngle = _mazePosition - new Vector2(_mazeSize.x * _wallLength / 2,
+                _mazeSize.y * _wallLength / 2);
         }
-    }
 
-    private MazeCell[,] GenerateCellsGrid()
-    {
-        MazeCell[,] grid = new MazeCell[_mazeSize.y, _mazeSize.x];
-
-        Vector3 startPosition = _bottomLeftMazeAngle + new Vector2(_wallOffset, _wallOffset);
-
-        for (int i = 0; i < grid.GetLength(0); i++)
+        public Maze Generate()
         {
-            for (int j = 0; j < grid.GetLength(1); j++)
+            ClearContainer();
+
+            MazeCell[,] mazeCellsGrid = GenerateCellsGrid();
+            MazeCell startCell = mazeCellsGrid[Random.Range(0, _mazeSize.y), Random.Range(0, _mazeSize.x)];
+            MazeCell lastCell;
+
+            CreateMazeFrame(mazeCellsGrid);
+            BypassingMazeGeneration(startCell, out lastCell, out var branches);
+
+            Trigger exitTrigger = CreateMazeExit(lastCell);
+
+            Maze maze = new Maze(startCell, lastCell, mazeCellsGrid, exitTrigger, _mazeContainer, branches);
+
+            _filler.FillMaze(maze);
+
+            return maze;
+        }
+
+        private void ClearContainer()
+        {
+            foreach (Transform child in _mazeContainer)
+                Destroy(child.gameObject);
+        }
+
+        private void CreateMazeFrame(MazeCell[,] grid)
+        {
+            float topMazeBorder = _bottomLeftMazeAngle.y + _wallLength * _mazeSize.y;
+            float bottomMazeBorder = _bottomLeftMazeAngle.y;
+            float rightMazeBorder = _bottomLeftMazeAngle.x + _wallLength * _mazeSize.x;
+            float leftMazeBorder = _bottomLeftMazeAngle.x;
+
+            Quaternion verticalRotation = Quaternion.Euler(0, 0, 90);
+            Quaternion horizontalRotation = Quaternion.Euler(0, 0, 0);
+
+            for (int i = 0; i < _mazeSize.y; i++)
             {
-                Vector3 cellPosition = startPosition + new Vector3(_wallLength * j, _wallLength * i);
-                MazeObjectLocationType locationType = MazeObjectLocationType.Inside;
+                float yPosition = bottomMazeBorder + _wallLength * i + _wallOffset;
 
-                if (i == 0 || i == grid.GetLength(0) - 1 ||
-                    j == 0 || j == grid.GetLength(1) - 1)
-                    locationType = MazeObjectLocationType.Side;
-                
-                grid[i, j] = new MazeCell(cellPosition, locationType);
+                Vector3 leftSidePosition = new Vector3(leftMazeBorder, yPosition);
+                Vector3 rightSidePosition = new Vector3(rightMazeBorder, yPosition);
+
+                SimpleWall leftSideWall = CreateWall(leftSidePosition, verticalRotation, MazeObjectLocationType.Side, _mazeContainer);
+                SimpleWall rightSideWall = CreateWall(rightSidePosition, verticalRotation, MazeObjectLocationType.Side, _mazeContainer);
+
+                grid[i, 0].ContactWalls.Add(leftSideWall);
+                grid[i, _mazeSize.x - 1].ContactWalls.Add(rightSideWall);
+            }
+
+            for (int i = 0; i < _mazeSize.x; i++)
+            {
+                float xPosition = leftMazeBorder + _wallLength * i + _wallOffset;
+
+                Vector3 bottomSidePosition = new Vector3(xPosition, bottomMazeBorder);
+                Vector3 topSidePosition = new Vector3(xPosition, topMazeBorder);
+
+                SimpleWall bottomSideWall = CreateWall(bottomSidePosition, horizontalRotation, MazeObjectLocationType.Side, _mazeContainer);
+                SimpleWall topSideWall = CreateWall(topSidePosition, horizontalRotation, MazeObjectLocationType.Side, _mazeContainer);
+
+                grid[0, i].ContactWalls.Add(bottomSideWall);
+                grid[_mazeSize.y - 1, i].ContactWalls.Add(topSideWall);
             }
         }
 
-        ConnectNeighboringCells(grid);
-
-        return grid;
-
-        void ConnectNeighboringCells(MazeCell[,] cells)
+        private MazeCell[,] GenerateCellsGrid()
         {
-            for (int i = 0; i < cells.GetLength(0); i++)
-            {
-                for (int j = 0; j < cells.GetLength(1); j++)
-                {
-                    List<MazeCell> neighboringCells = cells.GetNeighbours(i, j);
+            MazeCell[,] grid = new MazeCell[_mazeSize.y, _mazeSize.x];
 
-                    foreach (var neighbour in neighboringCells)
-                        cells[i, j].AllNeighboringCells.Add(neighbour);
+            Vector3 startPosition = _bottomLeftMazeAngle + new Vector2(_wallOffset, _wallOffset);
+
+            for (int i = 0; i < grid.GetLength(0); i++)
+            {
+                for (int j = 0; j < grid.GetLength(1); j++)
+                {
+                    Vector3 cellPosition = startPosition + new Vector3(_wallLength * j, _wallLength * i);
+                    MazeObjectLocationType locationType = MazeObjectLocationType.Inside;
+
+                    if (i == 0 || i == grid.GetLength(0) - 1 ||
+                        j == 0 || j == grid.GetLength(1) - 1)
+                        locationType = MazeObjectLocationType.Side;
+
+                    grid[i, j] = new MazeCell(cellPosition, locationType);
+                }
+            }
+
+            ConnectNeighboringCells(grid);
+
+            return grid;
+
+            void ConnectNeighboringCells(MazeCell[,] cells)
+            {
+                for (int i = 0; i < cells.GetLength(0); i++)
+                {
+                    for (int j = 0; j < cells.GetLength(1); j++)
+                    {
+                        List<MazeCell> neighboringCells = cells.GetNeighbours(i, j);
+
+                        foreach (var neighbour in neighboringCells)
+                            cells[i, j].AllNeighboringCells.Add(neighbour);
+                    }
                 }
             }
         }
-    }
 
-    private void BypassingMazeGeneration(MazeCell startCell, out MazeCell lastCell, out List<Branch<MazeCell>> branches)
-    {
-        branches = new List<Branch<MazeCell>>();
-
-        List<MazeCell> mainBranchPath = new List<MazeCell>();
-        List<MazeCell> secondaryBranchPath = new List<MazeCell>();
-        
-        Stack<MazeCell> path = new Stack<MazeCell>();
-        
-        MazeCell current = startCell;
-        lastCell = startCell;
-
-        path.Push(current);
-        current.Visited = true;
-
-        while (path.Count > 0)
+        private void BypassingMazeGeneration(MazeCell startCell, out MazeCell lastCell, out List<Branch<MazeCell>> branches)
         {
-            bool canMoveNext = CanMoveNext(current, out var next, out var freeNeighbors);
+            branches = new List<Branch<MazeCell>>();
 
-            if (canMoveNext == true)
+            List<MazeCell> mainBranchPath = new List<MazeCell>();
+            List<MazeCell> secondaryBranchPath = new List<MazeCell>();
+
+            Stack<MazeCell> path = new Stack<MazeCell>();
+
+            MazeCell current = startCell;
+            lastCell = startCell;
+
+            path.Push(current);
+            current.Visited = true;
+
+            while (path.Count > 0)
             {
-                TryRemoveWallBetweenCells(current, next);
+                bool canMoveNext = CanMoveNext(current, out var next, out var freeNeighbors);
 
-                path.Push(current);
-                next.DistanceToStart = current.DistanceToStart + 1;
-
-                if (current.LocationType == MazeObjectLocationType.Side &&
-                     current.DistanceToStart > lastCell.DistanceToStart)
+                if (canMoveNext == true)
                 {
-                    lastCell = current;
-                    mainBranchPath = new List<MazeCell>(path);
+                    TryRemoveWallBetweenCells(current, next);
+
+                    path.Push(current);
+                    next.DistanceToStart = current.DistanceToStart + 1;
+
+                    if (current.LocationType == MazeObjectLocationType.Side &&
+                         current.DistanceToStart > lastCell.DistanceToStart)
+                    {
+                        lastCell = current;
+                        mainBranchPath = new List<MazeCell>(path);
+                    }
+
+                    if (secondaryBranchPath.Count != 0)
+                    {
+                        secondaryBranchPath.Reverse();
+
+                        Branch<MazeCell> secondaryBranch =
+                            new Branch<MazeCell>(new List<MazeCell>(secondaryBranchPath), BranchType.Secondary);
+
+                        branches.Add(secondaryBranch);
+                        secondaryBranchPath.Clear();
+                    }
+
+                    foreach (var neighbour in freeNeighbors)
+                        CreateWallBetweenCells(current, neighbour);
+
+                    next.Visited = true;
+                    current.Connect(next);
+                    current = next;
                 }
-
-                if (secondaryBranchPath.Count != 0)
+                else
                 {
-                    secondaryBranchPath.Reverse();
-                    
-                    Branch<MazeCell> secondaryBranch =
-                        new Branch<MazeCell>(new List<MazeCell>(secondaryBranchPath), BranchType.Secondary);
-                    
-                    branches.Add(secondaryBranch);
-                    secondaryBranchPath.Clear();
-                }
-
-                foreach (var neighbour in freeNeighbors)
-                    CreateWallBetweenCells(current, neighbour);
-
-                next.Visited = true;
-                current.Connect(next);
-                current = next;
-            }
-            else
-            {
-                secondaryBranchPath.Add(current);
-                current = path.Pop();
-            }
-        }
-
-        mainBranchPath.Reverse();
-        Branch<MazeCell> mainBranch = new Branch<MazeCell>(new List<MazeCell>(mainBranchPath), BranchType.Main);
-        branches.Add(mainBranch);
-        RemoveBranchesCollisions(mainBranch, branches);
-    }
-
-    private bool CanMoveNext(MazeCell current, out MazeCell next, out List<MazeCell> freeNeighbors)
-    {
-        next = default;
-
-        freeNeighbors = new List<MazeCell>();
-
-        foreach (var cell in current.AllNeighboringCells)
-            if (cell.Visited == false) freeNeighbors.Add(cell);
-
-        if (freeNeighbors.Count == 0) return false;
-
-        next = freeNeighbors[Random.Range(0, freeNeighbors.Count)];
-        freeNeighbors.Remove(next);
-
-        return true;
-    }
-
-    private void CreateWallBetweenCells(MazeCell cell1, MazeCell cell2)
-    {
-        Vector3 position = Vector3.Lerp(cell1.Position, cell2.Position, 0.5f);
-        float angle = Vector3.Angle(Vector3.up, cell2.Position - cell1.Position);
-
-        for(int i = 0; i < Math.Min(cell1.ContactWalls.Count, cell2.ContactWalls.Count); i++)
-        {
-            if(cell1.ContactWalls[i].transform.position == position ||
-               cell2.ContactWalls[i].transform.position == position)
-                return;
-        }
-
-        SimpleWall wall = CreateWall(position, Quaternion.Euler(0, 0, angle), MazeObjectLocationType.Inside, _mazeContainer);
-
-        cell1.ContactWalls.Add(wall);
-        cell2.ContactWalls.Add(wall);
-    }
-
-    private bool TryRemoveWallBetweenCells(MazeCell cell1, MazeCell cell2)
-    {
-        for (int i = 0; i < cell1.ContactWalls.Count; i++)
-        {
-            SimpleWall wall = cell1.ContactWalls[i];
-
-            if (cell2.ContactWalls.Contains(wall))
-            {
-                cell1.ContactWalls.Remove(wall);
-                cell2.ContactWalls.Remove(wall);
-               
-                Destroy(wall.gameObject);
-            }
-        }
-
-        return false;
-    }
-
-    private void RemoveBranchesCollisions(Branch<MazeCell> mask, List<Branch<MazeCell>> mazeBranches)
-    {
-        foreach (var branch in mazeBranches)
-        {
-            if(branch.Type == BranchType.Main)
-                continue;
-
-            for (int i = 0; i < branch.Path.Count; i++)
-            {
-                if (mask.Path.Contains(branch.Path[i]))
-                {
-                    branch.Path.RemoveAt(i);
-                    i--;
+                    secondaryBranchPath.Add(current);
+                    current = path.Pop();
                 }
             }
+
+            mainBranchPath.Reverse();
+            Branch<MazeCell> mainBranch = new Branch<MazeCell>(new List<MazeCell>(mainBranchPath), BranchType.Main);
+            branches.Add(mainBranch);
+            RemoveBranchesCollisions(mainBranch, branches);
         }
-    }
 
-    private Trigger CreateMazeExit(MazeCell lastSideCell)
-    {
-        for(int i = 0; i < lastSideCell.ContactWalls.Count; i++)
+        private bool CanMoveNext(MazeCell current, out MazeCell next, out List<MazeCell> freeNeighbors)
         {
-            SimpleWall sideWall = lastSideCell.ContactWalls[i];
-            
-            if(sideWall.LocationType == MazeObjectLocationType.Side)
-            {
-                GameObject exit = Instantiate(_finishTrigger.gameObject, sideWall.transform.position, sideWall.transform.rotation, _mazeContainer);
+            next = default;
 
-                lastSideCell.ContactWalls.Remove(sideWall);
-                Destroy(sideWall.gameObject);
-                
-                return exit.GetComponent<Trigger>();
+            freeNeighbors = new List<MazeCell>();
+
+            foreach (var cell in current.AllNeighboringCells)
+                if (cell.Visited == false) freeNeighbors.Add(cell);
+
+            if (freeNeighbors.Count == 0) return false;
+
+            next = freeNeighbors[Random.Range(0, freeNeighbors.Count)];
+            freeNeighbors.Remove(next);
+
+            return true;
+        }
+
+        private void CreateWallBetweenCells(MazeCell cell1, MazeCell cell2)
+        {
+            Vector3 position = Vector3.Lerp(cell1.Position, cell2.Position, 0.5f);
+            float angle = Vector3.Angle(Vector3.up, cell2.Position - cell1.Position);
+
+            for (int i = 0; i < Math.Min(cell1.ContactWalls.Count, cell2.ContactWalls.Count); i++)
+            {
+                if (cell1.ContactWalls[i].transform.position == position ||
+                   cell2.ContactWalls[i].transform.position == position)
+                    return;
+            }
+
+            SimpleWall wall = CreateWall(position, Quaternion.Euler(0, 0, angle), MazeObjectLocationType.Inside, _mazeContainer);
+
+            cell1.ContactWalls.Add(wall);
+            cell2.ContactWalls.Add(wall);
+        }
+
+        private bool TryRemoveWallBetweenCells(MazeCell cell1, MazeCell cell2)
+        {
+            for (int i = 0; i < cell1.ContactWalls.Count; i++)
+            {
+                SimpleWall wall = cell1.ContactWalls[i];
+
+                if (cell2.ContactWalls.Contains(wall))
+                {
+                    cell1.ContactWalls.Remove(wall);
+                    cell2.ContactWalls.Remove(wall);
+
+                    Destroy(wall.gameObject);
+                }
+            }
+
+            return false;
+        }
+
+        private void RemoveBranchesCollisions(Branch<MazeCell> mask, List<Branch<MazeCell>> mazeBranches)
+        {
+            foreach (var branch in mazeBranches)
+            {
+                if (branch.Type == BranchType.Main)
+                    continue;
+
+                for (int i = 0; i < branch.Path.Count; i++)
+                {
+                    if (mask.Path.Contains(branch.Path[i]))
+                    {
+                        branch.Path.RemoveAt(i);
+                        i--;
+                    }
+                }
             }
         }
 
-        return null;
-    }
-
-    private SimpleWall CreateWall(Vector3 position, Quaternion rotation, MazeObjectLocationType locationType, Transform container)
-    {
-        GameObject wallGO = Instantiate(_simpleWallPrefab.gameObject, position, rotation, container);
-
-        SimpleWall wall = wallGO.GetComponent<SimpleWall>();
-        wall.Initialize(locationType);
-
-        return wall;
-    }
-}
-
-public enum MazeObjectLocationType
-{
-    Side,
-    Inside,
-}
-
-public class Maze
-{
-    public MazeCell StartCell { get; private set; }
-    public MazeCell LastCell { get; private set; }
-    public MazeCell[,] MazeGrid { get; private set; }
-    
-    public List<Branch<MazeCell>> Branches { get; private set; }
-    public List<Branch<MazeCell>> SecondaryBranches => _secondaryBranches;
-    public Branch<MazeCell> MainBranch => _mainBranch;
-    public Trigger ExitTrigger { get; private set; }
-    public Transform Container { get; private set; }
-
-    private List<Branch<MazeCell>> _secondaryBranches;
-    private Branch<MazeCell> _mainBranch;
-
-    public Maze(MazeCell startCell, MazeCell lastCell, MazeCell[,] grid, 
-        Trigger exitTrigger, Transform container, List<Branch<MazeCell>> branches)
-    {
-        DecomposeBranches(branches, out _mainBranch, out _secondaryBranches);
-
-        Branches = branches;
-        Container = container;  
-        LastCell = lastCell;
-        ExitTrigger = exitTrigger;
-        MazeGrid = grid;
-        StartCell = startCell;
-    }
-
-    private void DecomposeBranches(List<Branch<MazeCell>> branches,
-        out Branch<MazeCell> mainBranch, out List<Branch<MazeCell>> secondaryBranches)
-    {
-        secondaryBranches = new List<Branch<MazeCell>>();
-        mainBranch = null;
-        
-        foreach (var branch in branches)
+        private Trigger CreateMazeExit(MazeCell lastSideCell)
         {
-            if (branch.Type == BranchType.Main) mainBranch = branch;
-            else secondaryBranches.Add(branch);
+            for (int i = 0; i < lastSideCell.ContactWalls.Count; i++)
+            {
+                SimpleWall sideWall = lastSideCell.ContactWalls[i];
+
+                if (sideWall.LocationType == MazeObjectLocationType.Side)
+                {
+                    GameObject exit = Instantiate(_finishTrigger.gameObject, sideWall.transform.position, sideWall.transform.rotation, _mazeContainer);
+
+                    lastSideCell.ContactWalls.Remove(sideWall);
+                    Destroy(sideWall.gameObject);
+
+                    return exit.GetComponent<Trigger>();
+                }
+            }
+
+            return null;
+        }
+
+        private SimpleWall CreateWall(Vector3 position, Quaternion rotation, MazeObjectLocationType locationType, Transform container)
+        {
+            GameObject wallGO = Instantiate(_simpleWallPrefab.gameObject, position, rotation, container);
+
+            SimpleWall wall = wallGO.GetComponent<SimpleWall>();
+            wall.Initialize(locationType);
+
+            return wall;
         }
     }
-    
+
+    public enum MazeObjectLocationType
+    {
+        Side,
+        Inside,
+    }
+
+    public class Maze
+    {
+        public MazeCell StartCell { get; private set; }
+        public MazeCell LastCell { get; private set; }
+        public MazeCell[,] MazeGrid { get; private set; }
+
+        public List<Branch<MazeCell>> Branches { get; private set; }
+        public List<Branch<MazeCell>> SecondaryBranches => _secondaryBranches;
+        public Branch<MazeCell> MainBranch => _mainBranch;
+        public Trigger ExitTrigger { get; private set; }
+        public Transform Container { get; private set; }
+
+        private List<Branch<MazeCell>> _secondaryBranches;
+        private Branch<MazeCell> _mainBranch;
+
+        public Maze(MazeCell startCell, MazeCell lastCell, MazeCell[,] grid,
+            Trigger exitTrigger, Transform container, List<Branch<MazeCell>> branches)
+        {
+            DecomposeBranches(branches, out _mainBranch, out _secondaryBranches);
+
+            Branches = branches;
+            Container = container;
+            LastCell = lastCell;
+            ExitTrigger = exitTrigger;
+            MazeGrid = grid;
+            StartCell = startCell;
+        }
+
+        private void DecomposeBranches(List<Branch<MazeCell>> branches,
+            out Branch<MazeCell> mainBranch, out List<Branch<MazeCell>> secondaryBranches)
+        {
+            secondaryBranches = new List<Branch<MazeCell>>();
+            mainBranch = null;
+
+            foreach (var branch in branches)
+            {
+                if (branch.Type == BranchType.Main) mainBranch = branch;
+                else secondaryBranches.Add(branch);
+            }
+        }
+    }
 }

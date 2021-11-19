@@ -1,16 +1,19 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-[System.Serializable]
-public class MazeFiller
+namespace MazeGame.Maze.Algorithms
 {
-    [SerializeField] List<MazeFillingAlgorithm> _mazeFillingAlgorithms;
-
-    public void FillMaze(Maze maze)
+    [System.Serializable]
+    public class MazeFiller
     {
-        foreach (var algorithm in _mazeFillingAlgorithms)
+        [SerializeField] List<MazeFillingAlgorithm> _mazeFillingAlgorithms;
+
+        public void FillMaze(Maze maze)
         {
-            algorithm.FillMaze(maze);
+            foreach (var algorithm in _mazeFillingAlgorithms)
+            {
+                algorithm.FillMaze(maze);
+            }
         }
     }
 }
