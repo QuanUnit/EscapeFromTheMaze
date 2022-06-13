@@ -1,33 +1,52 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
+using TMPro;
 using UnityEngine;
+using UnityEngine.EventSystems;
 using UnityEngine.UI;
 
-public class ShopProduct : MonoBehaviour
+[RequireComponent(typeof(Animator))]
+public class ShopProduct : MonoBehaviour, IPointerDownHandler, ISelectable
 {
-    public Toggle Toggle => _toggle;
     public int SkinIndex => _skinIndex;
     public bool IsBuying { get; private set; }
+
+    public event Action Selected;
+
+    public bool IsSelected => _isSelected;
 
     [SerializeField] private int _skinIndex;
     [SerializeField] private int _cost;
     [SerializeField] private GameObject _locker;
-    [SerializeField] private Toggle _toggle;
+    [SerializeField] private GameObject _selector;
+    [SerializeField] private TMP_Text _costText;
 
-    private void OnEnable() => _toggle.onValueChanged.AddListener(ToggleChangeValueHandle);
+    private bool _isSelected;
+    private Animator _animator;
 
-    private void OnDisable() => _toggle.onValueChanged.RemoveListener(ToggleChangeValueHandle);
+    private void Awake()
+    {
+        _costText.text = _cost.ToString();
+        _animator = GetComponent<Animator>();
+    }
 
     private void Start()
     {
         if (_locker.activeInHierarchy == false) Unlock();
     }
 
+    public void UnlockImmediate()
+    {
+        IsBuying = true;
+        SkinsStorage.Instance.SetBuyingState(_skinIndex, true);
+        _locker.SetActive(false);
+    }
+
     public void Unlock()
     {
         IsBuying = true;
-        _locker.SetActive(false);
+        _animator.SetTrigger("Unlock");
         SkinsStorage.Instance.SetBuyingState(_skinIndex, true);
     }
 
@@ -35,27 +54,41 @@ public class ShopProduct : MonoBehaviour
     {
         if (IsBuying) return;
 
+        GlobalWallet.Value -= _cost;
         Unlock();
         Select();
     }
 
-    private void Select()
+    public void Select()
     {
+        _isSelected = true;
         SkinsStorage.Instance.CurrentSkinIndex = _skinIndex;
+        _selector.SetActive(true);
+        Selected.Invoke();
     }
 
-    private void ToggleChangeValueHandle(bool value)
+    public void Unselect()
     {
-        if(value == true)
+        _selector.SetActive(false);
+        _isSelected = false;
+    }
+
+    public void OnPointerDown(PointerEventData eventData)
+    {
+        if(IsBuying == false)
         {
-            if (IsBuying)
+            int currentMoney = GlobalWallet.Value;
+
+            if (currentMoney < _cost)
             {
-                Select();
+                _animator.SetTrigger("NotMoney");
+                return;
             }
-            else
-            {
-                Buy();
-            }
+
+            Buy();
+            return;
         }
+
+        if(_isSelected == false) Select();
     }
 }

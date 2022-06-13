@@ -13,4 +13,4 @@ MonoBehaviour:
   m_Name: DefaultRandomScoreFiller
   m_EditorClassIdentifier: 
   _scorePointPrefab: {fileID: 7560889373758782363, guid: 31956313eecb97d42b6bf7403628168f, type: 3}
-  _maxScoreLineLength: 7
+  _maxScoreLineLength: 11

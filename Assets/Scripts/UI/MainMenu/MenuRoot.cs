@@ -6,25 +6,21 @@ using UnityEngine.SceneManagement;
 public class MenuRoot : MonoBehaviour
 {
     [SerializeField] private ShopPanel _shopPanel;
+    [SerializeField] private ModesPanel _modesPanel;
 
-    public void ShowShopPanel()
-    {
-        _shopPanel.gameObject.SetActive(true);
-    }
+    public void ShowShopPanel() => _shopPanel.gameObject.SetActive(true);
 
-    public void HideShopPanel()
-    {
-        _shopPanel.gameObject.SetActive(false);
-    }
+    public void HideShopPanel() => _shopPanel.gameObject.SetActive(false);
 
-    public void PlayClick()
-    {
-        SceneManager.LoadScene(1);
-    }
+    public void ShowModesPanel() => _modesPanel.gameObject.SetActive(true);
 
-    public void ExitApplication()
-    {
-        Debug.Log("Application ends self execution");
-        Application.Quit();
-    }
+    public void HideModesPanel() => _modesPanel.gameObject.SetActive(false);
+
+    public void ExitApplication() => Application.Quit();
+
+    public void StartSimpleMode() => SceneManager.LoadScene(1);
+
+    public void StartPointByPointMode() => SceneManager.LoadScene(2);
+
+    public void StartGuid() => SceneManager.LoadScene(3);
 }

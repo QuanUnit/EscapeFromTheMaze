@@ -3,6 +3,7 @@ using MazeGame.Player;
 using MazeGame.Tools;
 using UnityEngine;
 using UnityEngine.Events;
+using UnityEngine.SceneManagement;
 
 namespace MazeGame
 {
@@ -19,6 +20,8 @@ namespace MazeGame
         {
             RestartGame();
         }
+
+        public void GeneralRestart() => SceneManager.LoadScene(gameObject.scene.buildIndex);
 
         public void RestartGame()
         {
@@ -48,6 +51,14 @@ namespace MazeGame
             _playerObserver.DeletePlayer();
             _timer.Stop();
             OnGameLost?.Invoke();
+        }
+
+        public void BackToMenu() => SceneManager.LoadScene(0);
+
+        public void ApplyMoney(int value)
+        {
+            GlobalWallet.Value += value;
+            Debug.Log(value);
         }
     }
 }

@@ -14,4 +14,7 @@ EditorBuildSettings:
   - enabled: 1
     path: Assets/Scenes/PointByPointMode.unity
     guid: cb3a7d629481b44ad917beab53fc0a74
+  - enabled: 1
+    path: Assets/Scenes/Guid.unity
+    guid: 6759c647159d86e45903d64e9744c8db
   m_configObjects: {}
