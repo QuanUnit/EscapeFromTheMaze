@@ -67,8 +67,6 @@ namespace BestOfTheNest.UI
 
                 targetScores += (tickCount * MultiplyValue);
 
-                Debug.Log(targetScores);
-
                 if (sourceScores < 0) sourceScores = 0;
                 if (targetScores > startSourceScores * MultiplyValue) targetScores = (int)(startSourceScores * MultiplyValue);
 

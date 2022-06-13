@@ -58,7 +58,6 @@ namespace MazeGame
         public void ApplyMoney(int value)
         {
             GlobalWallet.Value += value;
-            Debug.Log(value);
         }
     }
 }
